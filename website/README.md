@@ -17,9 +17,9 @@ python -m http.server 8000   # then open http://localhost:8000
 
 Or deploy from the CLI: `cd website && npx vercel --prod`.
 
-## Before going live
+## Contact
 
-- Set the real contact address in `CONTACT_EMAIL` at the top of `script.js`. The contact form opens the visitor's email app, so no backend is needed.
+The contact address is set in `CONTACT_EMAIL` at the top of `script.js`. The contact form opens the visitor's email app, so no backend is needed.
 
 ## Files
 

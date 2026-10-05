@@ -1,5 +1,4 @@
-// TODO: replace with the team's real contact address before going live.
-const CONTACT_EMAIL = 'hello@lynq.example';
+const CONTACT_EMAIL = 'hey@gambhir.dev';
 
 // Mobile menu
 const toggle = document.querySelector('.nav__toggle');
