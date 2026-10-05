@@ -1,0 +1,67 @@
+/* Lynq design tokens v1.0 — dark theme is default; add class="lynq-light" (or data-theme="light") for print/light pages. */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+
+:root{
+  /* Base (OQ-compatible near-black) */
+  --lynq-bg:#0E0E0E; --lynq-bg-2:#101010; --lynq-surface:#1C1C21; --lynq-card-top:#2F2F37; --lynq-card-bottom:#0B0B0B;
+  --lynq-card:linear-gradient(180deg,var(--lynq-card-top) 0%,var(--lynq-card-bottom) 100%);
+  --lynq-border:rgba(255,255,255,.08); --lynq-border-strong:rgba(255,255,255,.16);
+
+  /* Text */
+  --lynq-text:#FFFFFF; --lynq-text-2:#999999; --lynq-text-3:rgba(255,255,255,.64);
+  --lynq-heading-gradient:linear-gradient(91deg,#999999 1%,#FFFFFF 99%);
+
+  /* Accents */
+  --lynq-cyan:#3FD0E0;        /* Lynq accent: links, pulse, policy-compliant path */
+  --lynq-cyan-deep:#0B8A9A;   /* cyan on light grounds (graphics) */
+  --lynq-cyan-text-light:#087F8E; /* cyan text on white, AA 4.7:1 */
+  --lynq-orange:#FAA055;      /* shared OQ accent: CTAs, key numbers */
+  --lynq-orange-2:#F4A968; --lynq-orange-tint:#FACC83;
+  --lynq-orange-text-light:#B45F12; /* orange text on white, AA 4.6:1 */
+  --lynq-orange-glow:inset 0 -4px 4px rgba(244,169,104,.25);
+  --lynq-alert:#FF5A5F;       /* priority alarms only — never brand highlights */
+  --lynq-alert-light:#D1343A;
+  --lynq-ok:#5BD69A;
+
+  /* Neutrals */
+  --lynq-n-900:#0E0E0E; --lynq-n-800:#1C1C21; --lynq-n-700:#353535; --lynq-n-500:#6B6B73;
+  --lynq-n-400:#999999; --lynq-n-200:#D6D6DB; --lynq-n-100:#F2F2F4; --lynq-n-0:#FFFFFF;
+
+  /* Data-viz: traffic classes (colour-blind safe; pair with shape/label) */
+  --lynq-tc-alarm:#FF5A5F; --lynq-tc-control:#E8D25A; --lynq-tc-telemetry:#56B4E9;
+  --lynq-tc-video:#D78BC0; --lynq-tc-bulk:#8A8A94;
+  /* Data-viz: service tiers */
+  --lynq-tier-continuous:#3FD0E0; --lynq-tier-mesh:#9B8CFF; --lynq-tier-saf:#B8C4CC;
+
+  /* Type */
+  --lynq-font-heading:'Urbanist','Helvetica Neue',Arial,sans-serif;
+  --lynq-font-body:'Satoshi','Inter',system-ui,sans-serif;
+  --lynq-font-mono:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;
+  --lynq-fs-display:clamp(48px,6vw,120px); --lynq-fs-h1:clamp(36px,4vw,72px); --lynq-fs-h2:clamp(26px,2.6vw,48px);
+  --lynq-fs-h3:22px; --lynq-fs-body:16px; --lynq-fs-small:14px; --lynq-fs-label:12px;
+  --lynq-lh-tight:1.05; --lynq-lh-body:1.55; --lynq-tracking-heading:-.02em; --lynq-tracking-label:.1em;
+
+  /* Spacing (4px base) */
+  --lynq-s-1:4px; --lynq-s-2:8px; --lynq-s-3:12px; --lynq-s-4:16px; --lynq-s-5:24px;
+  --lynq-s-6:32px; --lynq-s-7:48px; --lynq-s-8:64px; --lynq-s-9:96px; --lynq-s-10:128px;
+
+  /* Radii */
+  --lynq-r-sm:8px; --lynq-r-md:16px; --lynq-r-lg:24px; --lynq-r-pill:999px;
+
+  /* Diagram strokes */
+  --lynq-stroke-link:2px; --lynq-stroke-path:3px; --lynq-dash-optical:6 4;
+}
+.lynq-light,[data-theme="light"]{
+  --lynq-bg:#FFFFFF; --lynq-bg-2:#F2F2F4; --lynq-surface:#F2F2F4; --lynq-card:#FFFFFF;
+  --lynq-border:#D6D6DB; --lynq-border-strong:#999999;
+  --lynq-text:#0E0E0E; --lynq-text-2:#353535; --lynq-text-3:#6B6B73;
+  --lynq-heading-gradient:none;
+  --lynq-cyan:#0B8A9A; --lynq-orange:#B45F12; --lynq-alert:#D1343A;
+}
+
+/* Helpers */
+.lynq-h-gradient{background:var(--lynq-heading-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lynq-label{font-family:var(--lynq-font-mono);font-size:var(--lynq-fs-label);letter-spacing:var(--lynq-tracking-label);text-transform:uppercase;color:var(--lynq-text-2)}
+.lynq-btn{font-family:var(--lynq-font-heading);font-weight:600;border-radius:var(--lynq-r-pill);padding:12px 24px;border:0;background:var(--lynq-orange);color:#0E0E0E;box-shadow:var(--lynq-orange-glow);cursor:pointer}
+.lynq-card{background:var(--lynq-card);border:1px solid var(--lynq-border);border-radius:var(--lynq-r-md)}

@@ -63,6 +63,7 @@ The full reasoning is in the [proposal](03-proposal/current/final.md): technical
 .
 ├── 00-challenge-brief/        Official OQ use-case brief (.docx original + .md conversion)
 ├── 01-research/               Research pack (18 Sep 2026). Start with 00-START-HERE.md
+├── website/                 Static one-page site for Vercel. See website/README.md
 ├── 02-brand/
 │   ├── lynq-brand-kit/        Logos, favicons, CSS tokens. Start with BRAND-GUIDE.md
 │   ├── brand-master-prompt.md Prompt used to generate the brand
@@ -107,6 +108,11 @@ All versions are in `03-proposal/`.
 | v5b | `history/v5b-2026-09-28-pre-fleet-backup/` | 28 Sep | Backup taken just before the final fleet edits |
 | v6 | `history/v6-2026-09-28-10-sats/` | 28 Sep | "10 → 30 satellites" wording |
 | **current** | `current/` | 28 Sep | "~12 → 30 satellites" (10 OQ + 2 ERMIS) |
+
+## Website
+
+`website/` holds a static one-page site with the proposal summary, team and contact form.
+To deploy it on Vercel, set Root Directory to `website`, with no build step. See [`website/README.md`](website/README.md).
 
 ## Rebuilding the .docx
 
