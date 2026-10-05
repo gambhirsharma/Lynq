@@ -1,0 +1,210 @@
+const fs = require('fs');
+const {
+  Document, Packer, Paragraph, TextRun, ImageRun, Table, TableRow, TableCell,
+  WidthType, BorderStyle, ShadingType, AlignmentType, LevelFormat, TabStopType,
+  VerticalAlign, TableLayoutType,
+} = require('docx');
+
+const OUT = process.argv[2];
+const C = { text: '0E0E0E', muted: '353535', cap: '6B6B73', teal: '0B8A9A', tealT: '087F8E',
+  orange: 'B45F12', rule: 'D6D6DB', panel: 'F2F2F4', mesh: '9B8CFF', snf: '8A97A0' };
+const HEAD = 'Urbanist', BODY = 'Arial', MONO = 'JetBrains Mono';
+const W = 10318; // content width in DXA (A4 minus 14 mm side margins)
+const SZ = 20;   // 10 pt body (minimum everywhere)
+
+const NONE = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+const NO_BORDERS = { top: NONE, bottom: NONE, left: NONE, right: NONE, insideHorizontal: NONE, insideVertical: NONE };
+const line = (color = C.rule, size = 4) => ({ style: BorderStyle.SINGLE, size, color });
+
+// Inline markup: **bold**, `orange mono number`
+function runs(text, base = {}) {
+  const out = [];
+  const re = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  let last = 0, m;
+  const push = (t, o) => t && out.push(new TextRun({ text: t, font: BODY, size: SZ, color: C.text, ...base, ...o }));
+  while ((m = re.exec(text))) {
+    push(text.slice(last, m.index));
+    const tok = m[0];
+    if (tok.startsWith('**')) push(tok.slice(2, -2), { bold: true });
+    else push(tok.slice(1, -1), { font: MONO, color: C.orange, size: SZ });
+    last = m.index + tok.length;
+  }
+  push(text.slice(last));
+  return out;
+}
+const P = (text, opts = {}) => new Paragraph({ spacing: { after: 50, line: 245 }, ...opts, children: runs(text, opts.run) });
+const label = (t, o = {}) => new TextRun({ text: t.toUpperCase(), font: MONO, size: 20, color: C.cap, characterSpacing: 20, ...o });
+
+function H2(num, title) {
+  return new Paragraph({ spacing: { before: 150, after: 50 }, keepNext: true, children: [
+    new TextRun({ text: num + '   ', font: MONO, size: 20, color: C.tealT, bold: true }),
+    new TextRun({ text: title, font: HEAD, size: 26, bold: true, color: C.text }),
+  ] });
+}
+const H3 = (t) => new Paragraph({ spacing: { before: 100, after: 40 }, keepNext: true,
+  children: [new TextRun({ text: t, font: HEAD, size: 21, bold: true, color: C.text })] });
+const bullet = (text) => new Paragraph({ numbering: { reference: 'dots', level: 0 }, spacing: { after: 30, line: 250 }, children: runs(text) });
+
+function cell(children, width, o = {}) {
+  return new TableCell({ width: { size: width, type: WidthType.DXA }, children,
+    margins: { top: 50, bottom: 50, left: 100, right: 100 }, ...o });
+}
+function table(widths, rows, borders = NO_BORDERS) {
+  return new Table({ width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA },
+    columnWidths: widths, layout: TableLayoutType.FIXED, borders, rows });
+}
+
+// ---------- Header ----------
+const masthead = new Paragraph({
+  tabStops: [{ type: TabStopType.RIGHT, position: W }],
+  border: { bottom: line() }, spacing: { after: 80 },
+  children: [
+    new ImageRun({ type: 'png', data: fs.readFileSync('logo.png'), transformation: { width: 26, height: 26 } }),
+    new TextRun({ text: ' Lynq', font: HEAD, size: 40, bold: true, color: C.text }),
+    new TextRun({ text: '  |  ', font: HEAD, size: 30, color: C.rule }),
+    new TextRun({ text: 'NTN-Pulse', font: HEAD, size: 26, bold: true, color: C.tealT }),
+    new TextRun({ text: '\t' }), label('NEOSPACE Europe 2026 · Luxembourg'),
+  ],
+});
+const title = new Paragraph({ spacing: { before: 60, after: 0 }, children: [new TextRun({ text: 'Lynq NTN-Pulse', font: HEAD, size: 38, bold: true, color: C.text })] });
+const tagline = new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Every signal, the right path.', font: HEAD, size: 21, color: C.tealT })] });
+
+const metaRow = (k, v) => new TableRow({ children: [
+  cell([new Paragraph({ children: [label(k)] })], 1750, { margins: { top: 20, bottom: 20, left: 0, right: 100 } }),
+  cell([new Paragraph({ children: runs(v, { color: C.muted }) })], W - 1750, { margins: { top: 20, bottom: 20, left: 0, right: 0 } }),
+] });
+const meta = table([1750, W - 1750], [
+  metaRow('Challenge', 'OQ Technology — AnyPoint-NTN: Global gNB-Onboard LEO Constellation for Ubiquitous 5G NR-NTN'),
+  metaRow('Category', 'Next-Gen Downstream'),
+  metaRow('Team', 'Lynq — Davoud Jokar (systems & digital twin), Ines Bouissou (NTN modelling & optimisation), Gambhir Sharma (cloud, APIs & deployment), Maryam Amini (TCO, pricing, regulation & first-buyer case)'),
+], { ...NO_BORDERS, bottom: line() });
+
+// ---------- Design point panel ----------
+const dw = [1.8, .6, .95].map(f => Math.round(W * f / 4.5)); dw.push(W - dw[0] - dw[1] - dw[2]);
+const shade = { type: ShadingType.CLEAR, color: 'auto', fill: C.panel };
+const kpi = (v, k) => [
+  new Paragraph({ spacing: { after: 10 }, children: [new TextRun({ text: v, font: MONO, size: 24, color: C.orange })] }),
+  new Paragraph({ children: [new TextRun({ text: k, font: BODY, size: 20, color: C.muted })] }),
+];
+const panelCell = (children, width, extra = {}) => cell(children, width, { shading: shade, ...extra });
+const tier = (sym, symColor, name, val) => [
+  new TextRun({ text: sym + ' ', font: MONO, size: 16, color: symColor, bold: true }),
+  new TextRun({ text: name + ' ', font: HEAD, size: 20, bold: true, color: C.text }),
+  new TextRun({ text: val, font: MONO, size: 20, color: C.orange }),
+];
+const panelBorders = { ...NO_BORDERS, left: line(C.teal, 18) };
+const design = table(dw, [
+  new TableRow({ children: [panelCell([new Paragraph({ children: [label('Design point', { color: C.tealT })] })], W, { columnSpan: 4 })] }),
+  new TableRow({ children: [
+    panelCell(kpi('10 → 30', "satellites: 10 in orbit today, 20+ by 2028 under €25M EIB financing, 30 planned"), dw[0]),
+    panelCell(kpi('10°', 'minimum elevation'), dw[1]),
+    panelCell(kpi('100%', 'full regenerative gNB on every satellite'), dw[2]),
+    panelCell(kpi('RF+optical', 'RF intra-plane ISL, optical cross-plane relay subset'), dw[3]),
+  ] }),
+  new TableRow({ children: [panelCell([new Paragraph({
+    tabStops: [{ type: TabStopType.LEFT, position: 3450 }, { type: TabStopType.LEFT, position: 6900 }],
+    border: { top: line() }, spacing: { before: 40 },
+    children: [...tier('━━', C.teal, 'Continuous', '<150 ms'), new TextRun('\t'),
+      ...tier('●━●', C.mesh, 'Mesh-relayed', '<250 ms'), new TextRun('\t'),
+      ...tier('···', C.snf, 'Store-and-forward', '≤90 min')],
+  })], W, { columnSpan: 4 })] }),
+], panelBorders);
+
+// ---------- Figure ----------
+const figure = new Paragraph({ spacing: { before: 60, after: 20 }, keepNext: true, children: [
+  new ImageRun({ type: 'png', data: fs.readFileSync('fig.png'), transformation: { width: 688, height: 103 } }),
+] });
+const caption = P('Teal = policy-compliant path via ISL to an authorised gateway and 5G Core; grey = blocked gateway.', { run: { size: 20, color: C.cap } });
+
+// ---------- Engagement sequence ----------
+const f = Math.floor(W / 5), ew = [f, f, f, f, W - 4 * f];
+const steps = [
+  ['01', 'Luxembourg ILR/LSA', "Extend OQ's Nov-2025 concession to ISL & regenerative ops"],
+  ['02', 'ITU BR via Luxembourg', 'Priority filings'],
+  ['03', 'International waters', 'No landing rights needed'],
+  ['04', 'North Sea regulators & MNOs', 'Coastal coverage'],
+  ['05', 'EC/CEPT', 'S-band MSS (IoT) and C-band D2D spectrum'],
+];
+const white = { style: BorderStyle.SINGLE, size: 24, color: 'FFFFFF' };
+const engagement = table(ew, [new TableRow({ children: steps.map(([n, t, d], i) => panelCell([
+  new Paragraph({ children: [new TextRun({ text: n, font: MONO, size: 20, color: C.tealT, bold: true })] }),
+  new Paragraph({ children: [new TextRun({ text: t, font: BODY, size: 20, bold: true, color: C.text })] }),
+  new Paragraph({ children: [new TextRun({ text: d, font: BODY, size: 20, color: C.muted })] }),
+], ew[i], { verticalAlign: VerticalAlign.TOP })) })],
+{ top: white, bottom: white, left: white, right: white, insideHorizontal: white, insideVertical: white });
+
+// ---------- Risk table ----------
+const rw = [1900, 3300, W - 5200];
+const risks = [
+  ['Payload', 'Final power, compute, radiation and RAN-interface limits may differ.', 'Payload-independent policies (dedicated and hosted payloads) with cloud/gateway fallback; OQ interface checklist.'],
+  ['ISL / regulatory', 'Final ISL, gateway and spectrum choices may change.', 'Simulate optical/RF ISLs, gateway visibility and store-and-forward; ITU/national rules as hard constraints.'],
+  ['Adoption', 'Customers may resist terminals, MNO integration or uncertain SLAs.', 'One wind-turbine alarm use case, measured TCO and a paid pilot with latency, availability and delivery targets.'],
+];
+const rcell = (children, i) => cell(children, rw[i], { margins: { top: 50, bottom: 50, left: 0, right: 120 } });
+const riskTable = table(rw, [
+  new TableRow({ tableHeader: true, children: ['Risk', 'Assumption', 'Mitigation'].map((h, i) =>
+    rcell([new Paragraph({ children: [label(h)] })], i)) }),
+  ...risks.map(r => new TableRow({ cantSplit: true, children: [
+    rcell([new Paragraph({ children: [new TextRun({ text: r[0], font: HEAD, size: 20, bold: true, color: C.text })] })], 0),
+    rcell([new Paragraph({ children: runs(r[1], { color: C.muted }) })], 1),
+    rcell([new Paragraph({ children: runs(r[2], { color: C.muted }) })], 2),
+  ] })),
+], { ...NO_BORDERS, insideHorizontal: line(), bottom: line() });
+
+// ---------- Roles ----------
+const roles = [['Davoud Jokar', 'Systems & digital twin'], ['Ines Bouissou', 'NTN modelling & optimisation'],
+  ['Gambhir Sharma', 'Cloud, APIs & deployment'], ['Maryam Amini', 'TCO, pricing, regulation & first-buyer case']];
+const roleTable = table(dw, [new TableRow({ children: roles.map(([n, r], i) => cell([
+  new Paragraph({ children: [new TextRun({ text: n, font: HEAD, size: 20, bold: true, color: C.text })] }),
+  new Paragraph({ children: [new TextRun({ text: r, font: BODY, size: 20, color: C.cap })] }),
+], dw[i], { borders: { top: { style: BorderStyle.SINGLE, size: 12, color: C.teal }, bottom: NONE, left: NONE, right: NONE },
+  margins: { top: 60, bottom: 20, left: 40, right: 160 } })) })]);
+
+const footer = new Paragraph({ tabStops: [{ type: TabStopType.RIGHT, position: W }], border: { top: line() },
+  spacing: { before: 160 }, children: [label('Lynq · Every signal, the right path.'), new TextRun('\t'),
+    label('Challenge by '), label('OQ Technology', { color: C.text, bold: true })] });
+
+// ---------- Body ----------
+const lead = (t, rest) => P(`**${t}** ${rest}`);
+const children = [
+  masthead, title, tagline, meta,
+  H2('01', 'Executive Summary'),
+  P("Lynq NTN-Pulse is a software-defined digital twin and policy engine for OQ Technology's regenerative gNB-onboard LEO constellation. It governs industrial traffic across onboard gNB, feeder/ISL paths, gateways, 5G Core and cloud, applying 3GPP-aligned policies for QoS, latency, availability, data residency, spectrum and cost. The first beachhead is offshore energy and maritime operations: Lynq adds the software layer that makes regenerative NTN capacity measurable and deployable."),
+  design,
+  H2('02', 'Problem & Opportunity'),
+  lead('Status quo: the bent-pipe limit.', 'Transparent payloads need a visible ground gateway and feeder link for processing, routing and core access. If the gateway is out of view, blocked, nationally restricted or overloaded, service degrades or is lost. Offshore wind farms, platforms, vessels and pipelines are hit hardest, and their traffic is mixed: alarms and control commands need priority; telemetry, video and files tolerate delay.'),
+  P("A regenerative gNB moves RAN and Layer 2/3 functions into orbit but adds Doppler/delay, handovers, intermittent feeder access, gateway selection, ISL routing and compute limits. Lynq's policy layer decides whether traffic is delivered now, routed, edge-processed or stored for later downlink."),
+  H2('03', 'Proposed Direction'),
+  H3('Technical angle'),
+  bullet('**Digital twin:** one model for OQ\'s 10-satellite fleet today and the planned 30: satellite position, coverage, gateway visibility, feeder/ISL state, terminal location, traffic demand and onboard compute.'),
+  bullet('**Policy engine:** assigns traffic classes to available paths by QoS, latency, reliability, residency and cost.'),
+  bullet('**NTN model and dashboard:** timing, beam management, handover, link budgets, scheduling, queues, predicted outages and route decisions.'),
+  figure, caption,
+  lead('Constellation (sized with the twin).', "We start with OQ's `10` in-orbit satellites and size the twin for its planned `30`, focused on one region: the North Sea offshore energy basin (UK, Norwegian, Danish, Dutch and German sectors, `~51–61°N`). At `~500–550 km` and `10°` minimum elevation, one footprint is `~3,000 km` across, so one satellite in view covers the whole basin and every land gateway around it. Ten satellites give frequent passes, not continuous coverage: alarms go out on the next pass and store-and-forward carries bulk data between passes. At a 5-year life, a 30-satellite fleet needs `~6` replacements per year. Scaling to OQ's planned 30 (e.g., 3 planes × 10) shrinks gaps between passes about 3× and lets each plane close an RF inter-satellite ring; the same policies then add mesh relaying and extend to the Norwegian Sea and Atlantic, on the way to OQ's 100 D2D payloads."),
+  lead('Payload trade.', 'Full regenerative gNB: bent-pipe cannot serve users with no gateway in view, and split gNB (options 2/7.2x) keeps most RF/PHY power onboard while RRC still round-trips over the feeder. Power, thermal and radiation costs are mitigated by a narrowband gNB, duty-cycling over empty ocean and COTS processing under a rad-hard supervisor. The scheduler must sit in orbit because the gNB sorts every message into three classes: **critical** (alarms, safety/shutdown commands, a few hundred bytes) takes the first uplink slot and first authorised path on the current pass; **regular** (telemetry, logs, files) is queued onboard and store-and-forwarded on a later pass (≤90 min); **metadata** (device status, position, delivery receipts, policy tags) is tiny but tells the twin and policy engine where each asset is and which gateway it may use.'),
+  P('Example: mid-Atlantic platform → Frankfurt cloud in `~75–110 ms` one-way over ISL, versus no service on bent-pipe.'),
+  P('ISL trade: optical offers high capacity and low interference but needs precise pointing and tracking; RF (Ka/V/W-band) adds spectrum and interference constraints. Narrowband traffic needs only single-digit Mbps per satellite, so **we choose RF intra-plane ISL on all satellites** (near-static geometry, proven by Iridium) **and optical cross-plane on a relay subset** (no spectrum licence, hard to intercept), from European suppliers to avoid ITAR/EAR.'),
+  P('Doppler/delay pre-compensation follows 3GPP Rel-17/18/19 procedures. AI forecasts traffic, detects anomalies and prioritises resources; deterministic timing, link-budget and safety controls stay authoritative.'),
+  H3('Regulatory angle'),
+  P("The Consultant's Dilemma: a local ground gateway may be technically attractive but unavailable because of national restrictions, data-residency rules or licensing. A regenerative gNB knows the user's identity, PLMN and verified location, so Lynq applies routing policy onboard and sends each flow over an authorised ISL/feeder path only to a policy-compliant gateway with local user-plane breakout. Under MNO partnerships, the MNO keeps lawful intercept."),
+  P('Compliance treats ITU Radio Regulations Article 9 coordination and Article 22 EPFD limits as hard design constraints (feeder-link masks, gateway exclusion zones), with applicable PFD/EIRP conditions and national authorisations. It supports EU-hosted processing, encryption, key ownership, pseudonymisation and GDPR retention. **Sovereignty is built into routing.**'),
+  P('**Engagement sequence**', { keepNext: true, spacing: { after: 30 } }),
+  engagement,
+  H3('Business angle'),
+  P("The first buyer is a European offshore energy operator or offshore wind O&M provider (e.g., Equinor, Ørsted or Eni), aligned with OQ's European funding focus. Lynq reduces blind spots, improves alarm delivery and cuts dependence on VSAT and fixed gateways."),
+  P("Revenue: integration fees, monthly subscriptions by asset and traffic class, usage charges for data/priority QoS, and MNO wholesale or roaming. For the initial North Sea network, opex including replenishment is `~€9M/yr`: break-even at `~75k` offshore assets at `€120/yr`, or `~9k` sovereign/defence endpoints at `€1,000+/yr`. At ~€2–3/MB we price per asset, never per byte. OQ's EIC Accelerator award (`€2.5M` grant plus up to `€15M` equity) and `€25M` EIB venture debt tied to 20+ launches within two years fund a second service on the same network: SOS and safety messaging to unmodified phones for offshore crews and vessels, alongside asset IoT. TCO is benchmarked against VSAT, private LTE, Sateliot, Skylo, Starlink D2C/Lynk and Iridium."),
+  H2('04', 'Key Assumptions & Risks'),
+  riskTable,
+  H2('05', 'Next Steps'),
+  P('For Phase 2 in Luxembourg, Lynq will simulate one offshore corridor at 10 and 30 satellites, bent-pipe vs. regenerative, under changing visibility, gateway access, load and ISL conditions, showing priority handling, dynamic ISL/feeder/store-and-forward selection, latency, delivery probability, queue depth, TCO and routing compliance.'),
+];
+
+const doc = new Document({
+  creator: 'Lynq', title: 'Lynq NTN-Pulse — Team Proposal',
+  styles: { default: { document: { run: { font: BODY, size: SZ, color: C.text } } } },
+  numbering: { config: [{ reference: 'dots', levels: [{ level: 0, format: LevelFormat.BULLET, text: '●',
+    alignment: AlignmentType.LEFT, style: { run: { color: C.teal, size: 12 }, paragraph: { indent: { left: 260, hanging: 200 } } } }] }] },
+  sections: [{ properties: { page: { size: { width: 11906, height: 16838 },
+    margin: { top: 567, bottom: 510, left: 794, right: 794, header: 300, footer: 300 } } }, children }],
+});
+Packer.toBuffer(doc).then(b => { fs.writeFileSync(OUT, b); console.log('wrote', OUT); });

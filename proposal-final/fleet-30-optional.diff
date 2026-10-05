@@ -1,0 +1,39 @@
+--- a/final.md
++++ b/final.md
+@@ -49,7 +49,6 @@
+ The scheduler must sit in orbit because the gNB sorts every message into three classes: **critical** (alarms, safety/shutdown commands, a few hundred bytes) takes the first uplink slot and first authorised path on the current pass; **regular** (telemetry, logs, files) is queued onboard and store-and-forwarded on a later pass (≤90 min); **metadata** (device status, position, delivery receipts, policy tags) is tiny but tells the twin and policy engine where each asset is and which gateway it may use.
+ 
+ Example: mid-Atlantic platform → Frankfurt cloud in ~75–110 ms one-way over ISL, versus no service on bent-pipe.
+-Baseline is 3GPP Rel-17 NTN, with Rel-18 enhancements and a Rel-19-ready roadmap.
+ 
+ ISL trade: optical offers high capacity and low interference but needs precise pointing and tracking; RF (Ka/V/W-band) adds spectrum and interference constraints.
+ Narrowband traffic needs only single-digit Mbps per satellite, so **we choose RF intra-plane ISL on all satellites** (near-static geometry, proven by Iridium) **and optical cross-plane on a relay subset** (no spectrum licence, hard to intercept), from European suppliers to avoid ITAR/EAR.
+@@ -73,7 +72,7 @@
+ 2. **ITU BR via Luxembourg** — Priority filings
+ 3. **International waters** — No landing rights needed
+ 4. **North Sea regulators & MNOs** — Coastal coverage
+-5. **EC/CEPT** — EU 2 GHz MSS, off the critical path
++5. **EC/CEPT** — S-band MSS (IoT) and C-band D2D spectrum
+ 
+ ### Business angle
+ 
+@@ -81,16 +80,16 @@
+ Lynq reduces blind spots, improves alarm delivery and cuts dependence on VSAT and fixed gateways.
+ 
+ Revenue: integration fees, monthly subscriptions by asset and traffic class, usage charges for data/priority QoS, and MNO wholesale or roaming.
+-For the 12-satellite North Sea network, opex including replenishment is ~€9M/yr: break-even at ~75k offshore assets at €120/yr, or ~9k sovereign/defence endpoints at €1,000+/yr.
++For the initial North Sea network, opex including replenishment is ~€9M/yr: break-even at ~75k offshore assets at €120/yr, or ~9k sovereign/defence endpoints at €1,000+/yr.
+ At ~€2–3/MB we price per asset, never per byte.
+-OQ's EIC Accelerator award (€2.5M grant plus up to €15M equity) for direct-to-mobile connectivity funds a second service on the same network: SOS and safety messaging to unmodified phones for offshore crews and vessels, alongside asset IoT.
++OQ's EIC Accelerator award (€2.5M grant plus up to €15M equity) and €25M EIB venture debt tied to 20+ launches within two years fund a second service on the same network: SOS and safety messaging to unmodified phones for offshore crews and vessels, alongside asset IoT.
+ TCO is benchmarked against VSAT, private LTE, Sateliot, Skylo, Starlink D2C/Lynk and Iridium.
+ 
+ ## 04 Key Assumptions & Risks
+ 
+ | Risk | Assumption | Mitigation |
+ |---|---|---|
+-| Payload | Final power, compute, radiation and RAN-interface limits may differ. | Payload-independent policies with cloud/gateway fallback; OQ interface checklist. |
++| Payload | Final power, compute, radiation and RAN-interface limits may differ. | Payload-independent policies (dedicated and hosted payloads) with cloud/gateway fallback; OQ interface checklist. |
+ | ISL / regulatory | Final ISL, gateway and spectrum choices may change. | Simulate optical/RF ISLs, gateway visibility and store-and-forward; ITU/national rules as hard constraints. |
+ | Adoption | Customers may resist terminals, MNO integration or uncertain SLAs. | One wind-turbine alarm use case, measured TCO and a paid pilot with latency, availability and delivery targets. |
+ 
