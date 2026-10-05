@@ -41,8 +41,7 @@ h3{font-size:var(--lynq-fs-h3);line-height:1.25}
   background:
     radial-gradient(circle at 85% 30%,transparent 0 219px,rgba(255,255,255,.06) 220px 221px,transparent 222px),
     radial-gradient(circle at 85% 30%,transparent 0 359px,rgba(255,255,255,.06) 360px 361px,transparent 362px),
-    radial-gradient(circle at 85% 30%,transparent 0 519px,rgba(255,255,255,.05) 520px 521px,transparent 522px),
-    radial-gradient(circle at 85% 30%,rgba(63,208,224,.10),transparent 45%);
+    radial-gradient(circle at 85% 30%,transparent 0 519px,rgba(255,255,255,.06) 520px 521px,transparent 522px);
   -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent);mask-image:linear-gradient(180deg,#000 60%,transparent)}
 .hero__inner{position:relative}
 .hero__title{font-size:var(--lynq-fs-display);line-height:var(--lynq-lh-tight);margin:var(--lynq-s-5) 0}
