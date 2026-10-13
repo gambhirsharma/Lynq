@@ -48,6 +48,9 @@ on every hop + gNB/ISL/ground processing + terrestrial fibre to the cloud.
 All assumptions (link budget, capacities, delays, gateways, sectors, traffic mix) live in
 `ntnpulse/config.py`. Change them there.
 
+For the full step-by-step walkthrough, formulas, worked latency example and metric definitions, see
+[HOW-IT-WORKS.md](HOW-IT-WORKS.md).
+
 ## Results (24 h, 300 terminals, 10 s steps)
 
 Output of `python run.py`, abridged. Critical = alarms; `<250 ms` is the mesh-relayed tier.
