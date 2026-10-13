@@ -40,9 +40,10 @@ Lynq's policy layer decides whether traffic is delivered now, routed, edge-proce
 
 **Constellation (sized with the twin).** We start with today's ~12 satellites (OQ's 10 + 2 ERMIS) and size the twin for the planned 30, focused on one region: the North Sea offshore energy basin (UK, Norwegian, Danish, Dutch and German sectors, ~51–61°N).
 At ~500–550 km and 10° minimum elevation, one footprint is ~3,000 km across, so one satellite in view covers the whole basin and every land gateway around it.
-Twelve satellites give frequent passes, not continuous coverage: alarms go out on the next pass and store-and-forward carries bulk data between passes.
+Twelve satellites give frequent passes, not continuous coverage: alarms go out on the next pass, bulk data by store-and-forward.
 At a 5-year life, a 30-satellite fleet needs ~6 replacements per year.
-Scaling to OQ's planned 30 (e.g., 3 planes × 10) shrinks gaps between passes about 2.5× and lets each plane close an RF inter-satellite ring; the same policies then add mesh relaying and extend to the Norwegian Sea and Atlantic, on the way to OQ's 100 D2D payloads.
+Scaling to OQ's planned 30 (3 planes × 10) shrinks gaps about 2.5× and lets each plane close an RF inter-satellite ring; in our twin, a 65° Walker delta instead of sun-synchronous planes cuts the worst North Sea gap from 118 to 3 min.
+The same policies then add mesh relaying and extend to the Norwegian Sea and Atlantic, on the way to OQ's 100 D2D payloads.
 
 **Payload trade.** Full regenerative gNB: bent-pipe cannot serve users with no gateway in view, and split gNB (options 2/7.2x) keeps most RF/PHY power onboard while RRC still round-trips over the feeder.
 Power, thermal and radiation costs are mitigated by a narrowband gNB, duty-cycling over empty ocean and COTS processing under a rad-hard supervisor.
@@ -62,7 +63,7 @@ The Consultant's Dilemma: a local ground gateway may be technically attractive b
 A regenerative gNB knows the user's identity, PLMN and verified location, so Lynq applies routing policy onboard and sends each flow over an authorised ISL/feeder path only to a policy-compliant gateway with local user-plane breakout.
 Under MNO partnerships, the MNO keeps lawful intercept.
 
-Compliance treats ITU Radio Regulations Article 9 coordination and Article 22 EPFD limits as hard design constraints (feeder-link masks, gateway exclusion zones), with applicable PFD/EIRP conditions and national authorisations.
+Compliance treats ITU RR Article 9 coordination and Article 22 EPFD limits as hard design constraints (feeder-link masks, gateway exclusion zones), with PFD/EIRP conditions and national authorisations.
 It supports EU-hosted processing, encryption, key ownership, pseudonymisation and GDPR retention.
 **Sovereignty is built into routing.**
 

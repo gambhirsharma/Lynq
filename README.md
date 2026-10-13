@@ -109,7 +109,8 @@ All versions are in `03-proposal/`.
 | v5 | `history/v5-2026-09-28-fleet-core-patch/` | 28 Sep | Core fleet-30 patch applied |
 | v5b | `history/v5b-2026-09-28-pre-fleet-backup/` | 28 Sep | Backup taken just before the final fleet edits |
 | v6 | `history/v6-2026-09-28-10-sats/` | 28 Sep | "10 → 30 satellites" wording |
-| **current** | `current/` | 28 Sep | "~12 → 30 satellites" (10 OQ + 2 ERMIS) |
+| v7 | `history/v7-2026-09-28-12-to-30-sats/` | 28 Sep | "~12 → 30 satellites" (10 OQ + 2 ERMIS) |
+| **current** | `current/` | 14 Oct | Simulation finding: a 65° Walker delta cuts the worst North Sea gap from 118 to 3 min |
 
 ## Website
 
