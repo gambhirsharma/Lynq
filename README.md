@@ -11,7 +11,8 @@
 <p align="center">
   <a href="03-proposal/current/final.pdf"><b>📄 Read the proposal (PDF)</b></a> ·
   <a href="01-research/00-START-HERE.md">Research pack</a> ·
-  <a href="02-brand/lynq-brand-kit/BRAND-GUIDE.md">Brand guide</a>
+  <a href="02-brand/lynq-brand-kit/BRAND-GUIDE.md">Brand guide</a> ·
+  <a href="04-simulation/README.md">Simulation</a>
 </p>
 
 ---
@@ -75,6 +76,7 @@ The full reasoning is in the [proposal](03-proposal/current/final.md): technical
     │   ├── 01-condense-to-2-pages/   3-page working PDF → 2-page final: review and diffs
     │   └── 02-fleet-30-update/       Fleet size 10 → 30 satellites: change notes and patches
     └── history/               Every earlier version, oldest first
+└── 04-simulation/             Phase 2 digital twin: scenario runner + Streamlit dashboard. See 04-simulation/README.md
 ```
 
 ### Research pack
