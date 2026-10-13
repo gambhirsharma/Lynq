@@ -11,7 +11,8 @@
 <p align="center">
   <a href="03-proposal/current/final.pdf"><b>📄 Read the proposal (PDF)</b></a> ·
   <a href="01-research/00-START-HERE.md">Research pack</a> ·
-  <a href="02-brand/lynq-brand-kit/BRAND-GUIDE.md">Brand guide</a>
+  <a href="02-brand/lynq-brand-kit/BRAND-GUIDE.md">Brand guide</a> ·
+  <a href="04-simulation/README.md">Simulation</a>
 </p>
 
 ---
@@ -75,6 +76,7 @@ The full reasoning is in the [proposal](03-proposal/current/final.md): technical
     │   ├── 01-condense-to-2-pages/   3-page working PDF → 2-page final: review and diffs
     │   └── 02-fleet-30-update/       Fleet size 10 → 30 satellites: change notes and patches
     └── history/               Every earlier version, oldest first
+└── 04-simulation/             Phase 2 digital twin: scenario runner + Streamlit dashboard. See 04-simulation/README.md
 ```
 
 ### Research pack
@@ -107,7 +109,8 @@ All versions are in `03-proposal/`.
 | v5 | `history/v5-2026-09-28-fleet-core-patch/` | 28 Sep | Core fleet-30 patch applied |
 | v5b | `history/v5b-2026-09-28-pre-fleet-backup/` | 28 Sep | Backup taken just before the final fleet edits |
 | v6 | `history/v6-2026-09-28-10-sats/` | 28 Sep | "10 → 30 satellites" wording |
-| **current** | `current/` | 28 Sep | "~12 → 30 satellites" (10 OQ + 2 ERMIS) |
+| v7 | `history/v7-2026-09-28-12-to-30-sats/` | 28 Sep | "~12 → 30 satellites" (10 OQ + 2 ERMIS) |
+| **current** | `current/` | 14 Oct | Simulation finding: a 65° Walker delta cuts the worst North Sea gap from 118 to 3 min |
 
 ## Website
 
