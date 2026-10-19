@@ -18,6 +18,28 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 `run.py --help` lists the options (`--sats 12 30 60`, `--hours`, `--block Stavanger`, `--loads`, ...).
 
+## Constellation sweep (big machine)
+
+`sweep.py` runs a grid of constellation designs in parallel (planes × satellites per plane × altitude ×
+inclination × star/delta, optionally × mode, blocked gateway, load and seed) and appends one row per run to
+`results/sweep.csv` as each finishes. Re-running the same command skips rows already in the file, so a sweep
+can be stopped and resumed.
+
+```bash
+git clone https://github.com/gambhirsharma/Lynq && cd Lynq/04-simulation
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+.venv/bin/python sweep.py --dry-run                       # size of the grid
+nohup .venv/bin/python sweep.py > sweep.log 2>&1 &        # default grid, 810 runs, all cores
+tail -f sweep.log
+```
+
+A 24 h run takes ~12–45 s on one core (more satellites = slower), so the default grid is ~6 core-hours:
+about 45 min on 8 cores, under 10 min on 64. Add `--modes bent_pipe regen regen_isl --block Stavanger
+--loads 1 5 --seeds 7 8 9` for the full stress matrix (~36× the runs). Columns: the design parameters, then
+everything in `Result.summary()` plus `critical_within_150ms`, `critical_via_isl`, `critical_store_forward`
+and `runtime_s`.
+
 ## What the model does
 
 Each time step (default 10 s over 24 h) the topology is frozen and rebuilt:
