@@ -16,7 +16,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m pytest -q tests       # physics sanity checks
 ```
 
-`run.py --help` lists the options (`--sats 12 30 60`, `--hours`, `--block Stavanger`, `--loads`, ...).
+`run.py --help` lists the options (`--sats 12 30 60 112`, default `112`, `--hours`, `--block Stavanger`, `--loads`, ...).
 
 ## Constellation sweep (big machine)
 
@@ -45,7 +45,9 @@ and `runtime_s`.
 Each time step (default 10 s over 24 h) the topology is frozen and rebuilt:
 
 1. **Orbits.** Walker constellation of circular orbits in a rotating Earth (`ntnpulse/geometry.py`).
-   Presets: `today-12` (2 x 6, SSO 97.6°), `planned-30` (3 x 10, SSO), `scale-60` (6 x 10); any shape in the dashboard.
+   Presets: `design-7x16` (default: 7 x 16 @ 700 km, 87°, Walker star, F0, RF crosslinks to both neighbouring
+   planes, seam unlinked; see `07-constellation-optimization/DESIGN-7x16.md`), `today-12` (2 x 6, SSO 97.6°),
+   `planned-30` (3 x 10, SSO), `scale-60` (6 x 10); any shape in the dashboard.
 2. **Visibility.** Elevation and slant range for every terminal and gateway to every satellite
    (10° mask for terminals, 5° for gateways).
 3. **Links.** Free-space path loss → uplink SNR → derated Shannon rate on one 180 kHz NB-IoT carrier

@@ -36,6 +36,7 @@ Presets in `config.py`:
 
 | Preset | Layout | Inclination |
 |---|---|---|
+| `design-7x16` (default) | 7 planes × 16, 700 km, F0, RF cross-plane links, seam unlinked | 87° (Walker star) |
 | `today-12` | 2 planes × 6 | 97.6° (sun-synchronous, like OQ's rideshares) |
 | `planned-30` | 3 planes × 10 | 97.6° |
 | `scale-60` | 6 planes × 10 | 97.6° |
