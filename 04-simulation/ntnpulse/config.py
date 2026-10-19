@@ -120,7 +120,9 @@ class Constellation:
     inclination_deg: float = 97.6     # sun-synchronous, like OQ's rideshares
     raan_spread_deg: float = 180.0    # Walker star
     phasing: int = 1
-    optical_every: int = 2            # every Nth satellite carries an optical terminal
+    optical_every: int = 2            # every Nth satellite carries a cross-plane terminal
+    cross_isl: str = "optical"        # cross-plane link technology: "optical" or "rf"
+    link_seam: bool = True            # link the last plane back to the first (counter-rotating in a star)
 
     @property
     def size(self) -> int:
@@ -128,6 +130,10 @@ class Constellation:
 
 
 CONSTELLATIONS = {
+    # Recommended global design, 07-constellation-optimization/DESIGN-7x16.md:
+    # 7x16 @ 700 km / 87 deg / Walker star / F0, RF crosslinks in-plane and to both neighbouring planes.
+    112: Constellation("design-7x16", planes=7, sats_per_plane=16, altitude_km=700.0, inclination_deg=87.0,
+                       phasing=0, optical_every=1, cross_isl="rf", link_seam=False),
     12: Constellation("today-12", planes=2, sats_per_plane=6),
     30: Constellation("planned-30", planes=3, sats_per_plane=10),
     60: Constellation("scale-60", planes=6, sats_per_plane=10),
@@ -136,7 +142,7 @@ CONSTELLATIONS = {
 
 @dataclass(frozen=True)
 class Scenario:
-    constellation: Constellation = CONSTELLATIONS[30]
+    constellation: Constellation = CONSTELLATIONS[112]
     mode: str = "regen_isl"
     blocked_gateways: frozenset[str] = field(default_factory=frozenset)
     load: float = 1.0

@@ -40,25 +40,30 @@ st.sidebar.title("Lynq NTN-Pulse")
 st.sidebar.caption("Digital twin of a regenerative gNB-onboard LEO constellation over the North Sea.")
 
 PRESETS = {
+    "112 (7x16 design, 700 km, 87 deg)": cfg.CONSTELLATIONS[112],
     "12 (today, sun-synchronous)": cfg.CONSTELLATIONS[12],
     "30 (planned, sun-synchronous)": cfg.CONSTELLATIONS[30],
     "30 (65 deg Walker delta)": cfg.Constellation("delta-30", 3, 10, inclination_deg=65.0, raan_spread_deg=360.0),
     "60 (sun-synchronous)": cfg.CONSTELLATIONS[60],
 }
-preset = st.sidebar.selectbox("Constellation", [*PRESETS, "Custom"], index=1)
-base = PRESETS.get(preset, cfg.CONSTELLATIONS[30])
+preset = st.sidebar.selectbox("Constellation", [*PRESETS, "Custom"], index=0)
+base = PRESETS.get(preset, cfg.CONSTELLATIONS[112])
 with st.sidebar.expander("Orbit parameters", expanded=preset == "Custom"):
-    planes = st.number_input("Planes", 1, 12, base.planes)
+    planes = st.number_input("Planes", 1, 16, base.planes)
     per_plane = st.number_input("Satellites per plane", 1, 30, base.sats_per_plane)
     alt = st.slider("Altitude (km)", 400, 1200, int(base.altitude_km), 25)
     inc = st.slider("Inclination (deg)", 45.0, 100.0, base.inclination_deg, 0.1,
                     help="97.6 = sun-synchronous (OQ today). 60-70 = Walker delta service shell from the research pack.")
     pattern = st.radio("Plane spacing", ["Walker star (180 deg)", "Walker delta (360 deg)"],
                        index=int(base.raan_spread_deg > 180), horizontal=True)
-    optical_every = st.number_input("Optical ISL on every Nth satellite", 1, 10, base.optical_every)
+    phasing = st.number_input("Phasing F", 0, 20, base.phasing)
+    cross_isl = st.radio("Cross-plane ISL", ["optical", "rf"], index=int(base.cross_isl == "rf"), horizontal=True)
+    optical_every = st.number_input("Cross-plane ISL on every Nth satellite", 1, 10, base.optical_every)
+    link_seam = st.checkbox("Link last plane back to first (seam)", base.link_seam)
 const = cfg.Constellation(f"{planes}x{per_plane}", int(planes), int(per_plane), float(alt), float(inc),
                           raan_spread_deg=180.0 if pattern.startswith("Walker star") else 360.0,
-                          optical_every=int(optical_every))
+                          phasing=int(phasing), optical_every=int(optical_every), cross_isl=cross_isl,
+                          link_seam=link_seam)
 
 compare = st.sidebar.toggle("Compare all three payload modes", value=True)
 mode = st.sidebar.radio("Payload mode", cfg.MODES, index=2, format_func=cfg.MODE_LABELS.get, disabled=compare)
@@ -184,11 +189,12 @@ with tab_net:
     sim = Simulation(sc)
     snap = sim.snapshot(t_map * 60.0)
     fig = go.Figure()
-    for kind, color, dash, label in (("rf", SLOT[0], "solid", "RF ISL (intra-plane)"),
-                                     ("optical", SLOT[1], "dash", "Optical ISL (cross-plane)")):
+    cross_label = f"{'RF' if sc.constellation.cross_isl == 'rf' else 'Optical'} ISL (cross-plane)"
+    for in_plane, color, dash, label in ((True, SLOT[0], "solid", "RF ISL (intra-plane)"),
+                                         (False, SLOT[1], "dash", cross_label)):
         lats, lons = [], []
         for i, j, km, k in snap["isl"]:
-            if k == kind:
+            if (snap["plane"][i] == snap["plane"][j]) == in_plane:
                 lats += [snap["sat_lat"][i], snap["sat_lat"][j], None]
                 lons += [snap["sat_lon"][i], snap["sat_lon"][j], None]
         if lats:
@@ -206,7 +212,7 @@ with tab_net:
     fig.add_scattergeo(lat=snap["sat_lat"], lon=snap["sat_lon"], mode="markers", name="Satellites (gNB onboard)",
                        marker=dict(size=10, color=TEXT, symbol=np.where(snap["optical"], "star", "circle"),
                                    line=dict(color=SURFACE, width=2)),
-                       text=[f"Sat {k} - plane {p}{' - optical' if o else ''}"
+                       text=[f"Sat {k} - plane {p}{' - cross-plane ISL' if o else ''}"
                              for k, (p, o) in enumerate(zip(snap["plane"], snap["optical"]))],
                        hovertemplate="%{text}<extra></extra>")
     open_gw = [g for g in cfg.GATEWAYS if g.name not in sc.blocked_gateways]
@@ -226,7 +232,7 @@ with tab_net:
     style(fig, height=640, title=f"t = {t_map} min: {len(snap['isl'])} ISLs, {len(snap['feeders'])} feeder links",
           hovermode="closest")
     st.plotly_chart(fig, width="stretch")
-    st.caption("Stars carry an optical cross-plane terminal. Drag the globe to rotate.")
+    st.caption("Stars carry a cross-plane ISL terminal. Drag the globe to rotate.")
 
 # --- queues & coverage ------------------------------------------------------------------
 with tab_q:

@@ -29,10 +29,11 @@ def user_rate_bps(d_km):
 
 
 def isl_edges(w: WalkerConstellation, pos: np.ndarray):
-    """ISL edges for one instant: (i, j, km, kind) with kind 'rf' (intra-plane) or 'optical' (cross-plane).
+    """ISL edges for one instant: (i, j, km, kind) with kind 'rf' or 'optical'.
 
-    RF: each satellite links to its in-plane neighbours if in range and above the atmosphere.
-    Optical: each optical-equipped satellite links to the nearest optical satellite in each adjacent plane.
+    In-plane (RF): each satellite links to its in-plane neighbours if in range and above the atmosphere.
+    Cross-plane (c.cross_isl): each equipped satellite links to the nearest equipped satellite in each
+    adjacent plane. With link_seam off, the last plane is not linked back to the first.
     """
     c = w.c
     S, P = c.sats_per_plane, c.planes
@@ -47,15 +48,16 @@ def isl_edges(w: WalkerConstellation, pos: np.ndarray):
                 edges.append((k, nxt, d, "rf"))
     if P > 1:
         opt = np.flatnonzero(w.optical)
+        max_km = OPTICAL_ISL_MAX_KM if c.cross_isl == "optical" else RF_ISL_MAX_KM
         for p in range(P):
             q = (p + 1) % P
-            if P == 2 and q < p:
+            if (P == 2 or not c.link_seam) and q < p:
                 continue
             for k in opt[w.plane[opt] == p]:
                 cand = opt[w.plane[opt] == q]
                 dists = np.linalg.norm(pos[cand] - pos[k], axis=1)
                 j = int(cand[np.argmin(dists)])
                 d = float(dists.min())
-                if d <= OPTICAL_ISL_MAX_KM and line_of_sight(pos[k], pos[j]):
-                    edges.append((int(k), j, d, "optical"))
+                if d <= max_km and line_of_sight(pos[k], pos[j]):
+                    edges.append((int(k), j, d, c.cross_isl))
     return edges

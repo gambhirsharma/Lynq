@@ -2,6 +2,7 @@
 
     python run.py                       # full matrix, 24 h at 10 s steps
     python run.py --hours 6 --sats 30   # quicker subset
+    python run.py --sats 12 30 112      # compare today / planned / 7x16 design
 """
 from __future__ import annotations
 
@@ -32,7 +33,7 @@ def _one(sc: cfg.Scenario):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--sats", type=int, nargs="+", default=[12, 30], choices=sorted(cfg.CONSTELLATIONS))
+    ap.add_argument("--sats", type=int, nargs="+", default=[112], choices=sorted(cfg.CONSTELLATIONS))
     ap.add_argument("--modes", nargs="+", default=list(cfg.MODES), choices=cfg.MODES)
     ap.add_argument("--block", nargs="*", default=["Stavanger"],
                     help="gateway(s) to take offline in the restricted variant (empty = skip it)")
