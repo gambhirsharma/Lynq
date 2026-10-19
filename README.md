@@ -12,7 +12,9 @@
   <a href="03-proposal/current/final.pdf"><b>📄 Read the proposal (PDF)</b></a> ·
   <a href="01-research/00-START-HERE.md">Research pack</a> ·
   <a href="02-brand/lynq-brand-kit/BRAND-GUIDE.md">Brand guide</a> ·
-  <a href="04-simulation/README.md">Simulation</a>
+  <a href="04-simulation/README.md">Simulation</a> ·
+  <a href="05-global-coverage/README.md">Global coverage</a> ·
+  <a href="07-constellation-optimization/README.md">Optimisation</a>
 </p>
 
 ---
@@ -77,6 +79,8 @@ The full reasoning is in the [proposal](03-proposal/current/final.md): technical
     │   └── 02-fleet-30-update/       Fleet size 10 → 30 satellites: change notes and patches
     └── history/               Every earlier version, oldest first
 └── 04-simulation/             Phase 2 digital twin: scenario runner + Streamlit dashboard. See 04-simulation/README.md
+└── 05-global-coverage/        Whole-Earth coverage + latency study, satellite count left free. See 05-global-coverage/README.md
+└── 07-constellation-optimization/  Multi-objective cost / latency / coverage optimisation, RF vs optical ISL. See 07-constellation-optimization/README.md
 ```
 
 ### Research pack
