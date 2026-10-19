@@ -10,18 +10,12 @@ Constraint: coverage_mean >= floor (default 0.90); optional budget on capex. Vio
 from __future__ import annotations
 
 import math
-import sys
 import time
 from dataclasses import dataclass
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "05-global-coverage"))
-
-from globalnet import config as cfg          # noqa: E402
-from globalnet.model import evaluate, link_rate_bps   # noqa: E402
-from optimize import coverage_half_angle_rad, min_spp   # noqa: E402
-
-import costmodel as cm                       # noqa: E402
+import costmodel as cm
+from globalnet import config as cfg
+from globalnet.model import evaluate, link_rate_bps
 
 ALTS = (450, 500, 550, 600, 700, 800, 1000, 1200)
 FAMILIES = ((53.0, "delta"), (70.0, "delta"), (87.0, "delta"), (87.0, "star"), (97.6, "star"))
@@ -49,6 +43,17 @@ def gene_sizes(max_shells: int) -> list[int]:
 
 def gene_names(max_shells: int) -> list[str]:
     return [f"s{k}_{g}" for k in range(max_shells) for g in SHELL_GENES] + ["inter_shell"]
+
+
+def coverage_half_angle_rad(alt_km: float, min_el_deg: float = cfg.TERMINAL_MIN_EL_DEG) -> float:
+    """Earth central angle from the sub-satellite point to the edge of the footprint at the terminal mask."""
+    e = math.radians(min_el_deg)
+    return math.acos(cfg.RE_KM * math.cos(e) / (cfg.RE_KM + alt_km)) - e
+
+
+def min_spp(alt_km: float) -> int:
+    """Fewest satellites per plane whose footprints still touch along the orbit: 2 pi / S <= 2 lambda."""
+    return max(2, math.ceil(math.pi / coverage_half_angle_rad(alt_km)))
 
 
 def _max_range_km(tech: str) -> float:

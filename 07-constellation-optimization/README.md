@@ -5,35 +5,89 @@ Multi-objective search for the LEO constellation that best trades **10-year cost
 optical), the number of crosslink terminals per satellite and the relay subset are decision variables. The full
 formulation is in [PLAN.md](PLAN.md).
 
-It reuses the physics of `../05-global-coverage/globalnet` (orbits, global grid, gateways, Dijkstra over the
-mesh), extended there for RF/optical links, brick / +Grid / relay-subset layouts, polar laser shutoff,
-inter-shell links, optical acquisition and failed satellites. The defaults reproduce the 05 results.
+The folder is self-contained. `globalnet/` is a copy of `../05-global-coverage/globalnet` (orbits, global grid,
+gateways, Dijkstra over the mesh), extended for RF/optical links, brick / +Grid / relay-subset layouts, polar
+laser shutoff, inter-shell links, optical acquisition and failed satellites. Its defaults reproduce the 05 results.
 
 | File | What it does |
 |---|---|
+| `globalnet/` | Coverage, ISL mesh and latency model |
 | `costmodel.py` | Satellite mass and bus, Δv and propellant, lifetime by altitude, launch, per-plane OTVs, ops: 10-year TCO |
 | `problem.py` | Decision variables ↔ design, repair, analytic pruning, objectives and constraint |
 | `solve.py` | NSGA-II → local search per service tier → full-fidelity confirmation → robustness |
 | `report.py` | `results/report.md`: answer, tier table, Pareto front, RF vs optical, mixed altitude, cost sensitivity |
+| `sweep.slurm` | MeluXina batch job |
 
-## Run
+## Run locally
 
 ```bash
-cd 05-global-coverage && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && cd ..
 cd 07-constellation-optimization
-../05-global-coverage/.venv/bin/python -m pytest -q          # 21 tests, ~10 s
-../05-global-coverage/.venv/bin/python solve.py               # ~1 h on 8 cores
-../05-global-coverage/.venv/bin/python solve.py --pop 48 --gens 20   # quicker
-../05-global-coverage/.venv/bin/python solve.py --stage report       # rebuild the report from saved CSVs
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest -q                  # 21 tests
+.venv/bin/python solve.py                      # ~1 h on 8 cores
+.venv/bin/python solve.py --pop 48 --gens 20   # quicker
+.venv/bin/python solve.py --stage report       # rebuild the report from saved CSVs
 ```
 
-On MeluXina: set `--account` in `sweep.slurm`, build the venv on a compute node, then `sbatch sweep.slurm`
-(any `solve.py` arguments pass through). Every evaluation is cached in `results/evals_*.csv`, so a re-submitted
-job resumes where it stopped.
+## Run on MeluXina
 
-Outputs in `results/`: `evals_screen_k2.csv`, `evals_full_k2.csv`, `tiers.csv`, `front.csv`, `robustness.csv`,
-`report.md`. The headline answer is the cheapest design with full coverage and p99 ≤ 100 ms, plus the knee of the
-confirmed front.
+You need a MeluXina user account with an SSH key registered, and your project ID (`p200XXX`).
+
+**1. Log in and get the code** (login node, port 8822):
+
+```bash
+ssh -p 8822 <user>@login.lxp.lu
+cd $HOME        # or your project folder: /project/home/p200XXX
+git clone https://github.com/gambhirsharma/Lynq && cd Lynq/07-constellation-optimization
+```
+
+**2. Build the venv on a compute node.** Modules only exist on compute nodes, and the venv must use the same
+Python module the job loads:
+
+```bash
+salloc -A p200XXX -p gpu -q dev -N 1 -t 00:30:00     # short interactive allocation
+srun --pty bash -l                                   # (only if salloc leaves you on the login node)
+module load Python
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest -q                        # 21 tests should pass
+exit                                                 # leave the node (twice if you used srun)
+```
+
+**3. Set your project ID and submit:**
+
+```bash
+sed -i 's/p200XXX/p200123/' sweep.slurm              # your project ID
+sbatch sweep.slurm --pop 128 --gens 60               # all 128 CPUs of a node: a bigger population costs ~no extra time
+```
+
+Any `solve.py` arguments go after `sweep.slurm`. The job uses the `gpu` partition because the project has GPU
+node-hours only. With CPU hours, change `--partition=cpu`.
+
+**4. Follow it:**
+
+```bash
+squeue --me                       # PD = waiting, R = running
+tail -f optimize-<jobid>.log      # one line per generation, then the tier answers
+sacct -j <jobid> --format=JobID,State,Elapsed,MaxRSS
+scancel <jobid>                   # stop it
+```
+
+If the job hits its time limit, run the same `sbatch` command again. Every evaluation is cached in
+`results/evals_*.csv`, so it carries on where it stopped.
+
+**5. Get the results** (from your own machine):
+
+```bash
+scp -P 8822 "<user>@login.lxp.lu:~/Lynq/07-constellation-optimization/results/*" ./results/
+```
+
+`results/report.md` has the answer. Also in `results/`: `tiers.csv`, `front.csv`, `robustness.csv` and the
+raw `evals_*.csv`.
+
+Troubleshooting: `module load Python` fails → `module avail Python` and put the exact name in `PYTHON_MODULE` in
+`sweep.slurm` (and rebuild the venv with it). `pip install` cannot reach PyPI from the compute node → build the
+venv on the login node with `python3 -m venv` instead, using the same Python version. `dev` QOS is rejected → use
+`-q default`.
 
 ## Limits
 

@@ -1,4 +1,4 @@
-"""The extended ISL model must reproduce the 05 study when every shell flies the default optical +Grid."""
+"""This copy of the 05 model (globalnet/) must reproduce the 05 study when every shell flies the default optical +Grid."""
 import pytest
 
 from globalnet import config as cfg
