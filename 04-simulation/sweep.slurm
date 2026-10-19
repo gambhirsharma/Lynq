@@ -12,7 +12,7 @@
 # Python 3.10+ module used to build .venv (`module avail python`); empty if using miniforge/system Python.
 PYTHON_MODULE="lang/Python/3.11.5-GCCcore-13.2.0"
 
-set -euo pipefail
+set -eo pipefail
 [ -n "$PYTHON_MODULE" ] && module load "$PYTHON_MODULE"
 cd "$SLURM_SUBMIT_DIR"
 .venv/bin/python sweep.py --workers "$SLURM_CPUS_PER_TASK" "$@"
