@@ -109,6 +109,44 @@ What this shows:
 Run `sweep.py` for the full trade space; its report prints the smallest full-coverage designs, the smallest that
 also meet `--max-p99-ms` (default 100 ms), and the Pareto front of satellite count vs. worst-place latency.
 
+## Cheapest design per latency target (`optimize.py`)
+
+`optimize.py` searches instead of sweeping a fixed grid: per altitude x inclination x pattern x planes, it adds
+satellites per plane until the design is gap-free and meets the tightest p99 target, screening at 3 h / 120 s /
+1,000 points, then re-checks the cheapest candidates at 24 h / 60 s / 2,000 points. Cost assumes EUR 1.53 M per
+satellite (EUR 0.75 M build + rideshare, EUR 0.78 M optical ISL terminals; 01-research/08-OUR-PROPOSAL.md).
+
+Single shell, 500-900 km (`--alt 500 600 700 800 900 --families 87/star 80/delta 87/delta`, 3,497 designs):
+
+| p99 target | Cheapest confirmed design | Sats | Cost | p50 | p99 |
+|---|---|---:|---:|---:|---:|
+| Full coverage, <= 110 ms | 6x13 @ 900 km, 87 deg star | 78 | EUR 119 M | 77 ms | 105 ms |
+| <= 100 ms | 7x14 @ 800 km, 87 deg star | 98 | EUR 150 M | 73 ms | 99 ms |
+| <= 95 ms | 7x17 @ 700 km, 87 deg star | 119 | EUR 182 M | 70 ms | 94 ms |
+| <= 90 ms | 11x14 @ 600 km, 87 deg delta | 154 | EUR 236 M | 70 ms | 90 ms |
+
+The best p99 reached anywhere in the search is 85 ms (255-304 satellites at 500 km). The knee is around
+100 ms: below it, every 5 ms costs 20-50 more satellites.
+
+Two shells (`--base-shell 6x11@1200/87/star --alt 500 600 700 --families 87/star 87/delta 53/delta`): a
+66-satellite 1,200 km polar shell (the smallest at 1,200 km that is gap-free over 24 h; 5x11 leaves gaps) plus a
+searched low shell.
+
+| p99 target | Cheapest confirmed hybrid | Sats | vs single shell |
+|---|---|---:|---:|
+| Full coverage | 4x5 @ 700 km + base | 86 | +8 |
+| <= 110 ms | 6x8 @ 700 km 53 deg + base | 114 | +36 |
+| <= 100 ms | 7x12 @ 700 km + base | 150 | +52 |
+| <= 90 ms | 9x17 @ 500 km + base | 219 | +65 |
+
+A hybrid never wins on cost for coverage or latency. p99 is set by the worst places on Earth, so the low shell
+must reach nearly everywhere anyway, and then the high shell adds satellites without cutting latency (there are
+no ISLs between shells in this model). What the high shell does buy is a second satellite in view: hybrids have
+>= 2 in view everywhere from 157 satellites. The single-shell search was not run with `--min-in-view 2`, so
+that trade is still open.
+
+Results: `results/single-500-900/` and `results/hybrid/` (CSV + log).
+
 ## Limits
 
 - Coverage and latency floor only: no traffic, capacity or queues. Feed a chosen design back into
