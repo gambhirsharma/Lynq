@@ -109,6 +109,14 @@ What this shows:
   cut the worst gap from **118 min to 3 min** and put 75% of alarms under 250 ms (vs. 59%). Try the
   "30 (65 deg Walker delta)" preset in the dashboard.
 
+## Fleet ops (KubeEdge)
+
+`ntnpulse/fleet.py` runs the same constellation as a Kubernetes/KubeEdge edge cluster managed from Frankfurt.
+On today's 12 satellites, each one hears the control plane only ~10% of the time. With stock Kubernetes timers, a
+node would go NotReady ~14 times a day. At 30 satellites, the ISL mesh keeps every satellite reachable, and a 100 MB
+canary-plus-waves update reaches the whole fleet in **~1.2 h**, versus **~21 h** without ISL. Details, pros and cons:
+[FLEET-OPS.md](FLEET-OPS.md).
+
 ## Dashboard
 
 `streamlit run dashboard.py`. The sidebar sets the constellation (presets or custom planes, altitude, inclination,
@@ -121,6 +129,9 @@ gateways, load, terminal count, duration and step.
   gateways (offline ones marked) and terminals, at any minute of the run.
 - **Queues & coverage**: onboard store-and-forward queue, messages waiting on terminals, satellites over the basin.
 - **Policy**: where each jurisdiction's traffic lands, compliance and policy re-routing.
+- **Fleet ops**: the fleet as a KubeEdge-style edge cluster. Control-plane reachability per satellite, and an
+  over-the-air rollout (canary + waves, restarts only outside the North Sea, peer sharing over ISL).
+  See [FLEET-OPS.md](FLEET-OPS.md) for the architecture, results, pros and cons.
 - **Data**: per-class tables and a CSV download of every delivered message.
 
 ## Limits

@@ -158,3 +158,36 @@ class Scenario:
     def label(self) -> str:
         gw = "all GW" if not self.blocked_gateways else "-" + ",".join(sorted(self.blocked_gateways))
         return f"{self.constellation.size} sats | {MODE_LABELS[self.mode]} | {gw} | load x{self.load:g}"
+
+
+# --- Fleet orchestration (KubeEdge-style software rollout) ----------------------
+OTA_FEEDER_MBPS = 5.0         # share of the 20 Mbps forward feeder given to software updates
+OTA_ISL_SHARE = 0.5           # share of an RF ISL a peer may use to pass the image on
+K8S_GRACE_S = 40.0            # node-monitor-grace-period: missed heartbeats before a node is NotReady
+K8S_EVICTION_S = 300.0        # default not-ready toleration before pods are evicted
+STRATEGIES = ("waves", "all")
+STRATEGY_LABELS = {"waves": "Canary, then waves", "all": "All at once"}
+
+
+@dataclass(frozen=True)
+class FleetScenario:
+    """One over-the-air rollout of a new onboard workload (e.g. a gNB container) to the whole fleet."""
+    constellation: Constellation = CONSTELLATIONS[30]
+    isl: bool = True                  # control traffic and images may relay over the ISL mesh
+    peer_sharing: bool = True         # satellites that have the image pass it to neighbours over ISL
+    blocked_gateways: frozenset[str] = field(default_factory=frozenset)
+    image_mb: float = 100.0           # layer delta to push, not the full image
+    ota_mbps: float = OTA_FEEDER_MBPS
+    strategy: str = "waves"
+    wave_size: int = 3                # maxUnavailable: satellites restarting at the same time
+    canary_soak_min: float = 30.0     # watch the canary this long before releasing the rest
+    restart_s: float = 90.0           # gNB down while the new container starts
+    avoid_basin: bool = True          # restart only while not serving the North Sea
+    prestage: bool = True             # pre-pull the image everywhere before release (ImagePrePullJob)
+    grace_s: float = K8S_GRACE_S
+    eviction_s: float = K8S_EVICTION_S
+    duration_s: float = 24 * 3600
+    step_s: float = 10.0
+
+    def with_(self, **kw) -> "FleetScenario":
+        return replace(self, **kw)
