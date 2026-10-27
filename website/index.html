@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lynq NTN-Pulse · Every signal, the right path.</title>
-  <meta name="description" content="Lynq NTN-Pulse: a digital twin and policy engine for OQ Technology's regenerative gNB-onboard LEO constellation. NEOSPACE Europe 2026.">
+  <meta name="description" content="Lynq NTN-Pulse: a 112-satellite polar 5G constellation for OQ Technology and the cloud-to-edge software that runs it. Every alarm on Earth in under 100 ms. NEOSPACE Europe 2026.">
   <meta property="og:title" content="Lynq NTN-Pulse">
-  <meta property="og:description" content="Digital twin and policy engine for regenerative 5G NR-NTN satellites. Every signal, the right path.">
+  <meta property="og:description" content="A 112-satellite polar 5G constellation and the KubeEdge-based software that runs it. Every signal, the right path.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#0E0E0E">
   <link rel="icon" href="/assets/favicon/favicon.svg" type="image/svg+xml">
@@ -42,19 +42,19 @@
         <p class="lynq-label">NEOSPACE Europe 2026 · OQ Technology challenge</p>
         <h1 class="hero__title lynq-h-gradient">Every signal,<br>the right path.</h1>
         <p class="hero__lead">
-          <strong>Lynq NTN-Pulse</strong> is a digital twin and policy engine for OQ Technology's
-          regenerative 5G satellites. It decides, for every message, whether to deliver it now,
-          relay it between satellites, or store it for the next pass, and it only sends data
-          to gateways that are allowed to receive it.
+          <strong>Lynq NTN-Pulse</strong> is a 112-satellite polar 5G constellation for OQ Technology,
+          and the cloud-to-edge software that runs it. Every alarm, anywhere on Earth, reaches the
+          cloud in under 100 ms, lands only at gateways allowed to receive it, and every satellite,
+          gateway and device is updated from one place.
         </p>
         <div class="hero__cta">
-          <a href="/assets/docs/lynq-ntn-pulse-proposal.pdf" class="lynq-btn" target="_blank" rel="noopener">Read the proposal</a>
+          <a href="/assets/docs/lynq-ntn-pulse-pitch.pdf" class="lynq-btn" target="_blank" rel="noopener">See the final pitch</a>
           <a href="#solution" class="btn-secondary">How it works</a>
         </div>
         <dl class="stats">
-          <div><dt>Satellites</dt><dd>~12 → 30</dd></div>
-          <div><dt>Continuous tier</dt><dd>&lt;150 ms</dd></div>
-          <div><dt>Mesh-relayed tier</dt><dd>&lt;250 ms</dd></div>
+          <div><dt>Satellites</dt><dd>112</dd></div>
+          <div><dt>Earth covered</dt><dd>100%</dd></div>
+          <div><dt>Alarm latency p99</dt><dd>98 ms</dd></div>
           <div><dt>Store-and-forward</dt><dd>≤90 min</dd></div>
         </dl>
       </div>
@@ -81,8 +81,9 @@
           <p>
             A <strong>regenerative</strong> satellite runs a full 5G base station (gNB) in orbit, so
             traffic can be routed over inter-satellite links or held onboard. That also makes the
-            network much harder to run: Doppler, handovers, intermittent feeder links, gateway
-            selection and limited onboard compute. Lynq is the software layer that handles it.
+            network much harder to run: a gNB on every satellite, dozens of gateways, hundreds of
+            thousands of devices, and links that come and go every few minutes. Updating software or
+            AI models by hand does not scale. Lynq designs the network and the software that runs it.
           </p>
         </div>
       </div>
@@ -140,20 +141,20 @@
 
         <div class="cards">
           <article class="lynq-card card">
-            <h3>Digital twin</h3>
-            <p>One model of satellites, coverage, gateway visibility, feeder and ISL state, terminals, traffic demand and onboard compute. Sized for today's ~12 satellites and the planned 30.</p>
+            <h3>7×16 polar constellation</h3>
+            <p>112 satellites at 700 km with Ka-band RF crosslinks. 100% of Earth every minute, alarm p99 98 ms. Chosen by searching 3,064 designs on the MeluXina supercomputer.</p>
           </article>
           <article class="lynq-card card">
-            <h3>Policy engine</h3>
-            <p>Assigns each traffic class to a path (deliver now, relay, process at the edge, or store and forward) based on QoS, latency, reliability, data residency and cost.</p>
+            <h3>Policy engine + digital twin</h3>
+            <p>Picks the path for every message: deliver now, relay over crosslinks, or store and forward. Lands data only at gateways allowed to receive it, with local breakout.</p>
           </article>
           <article class="lynq-card card">
-            <h3>Sovereign routing</h3>
-            <p>The onboard gNB knows each user's identity, network and verified location, so every flow goes only to a gateway that is allowed to receive it, with local breakout.</p>
+            <h3>KubeEdge orchestration</h3>
+            <p>One control plane from cloud to gateways, satellites and devices. Updates roll out canary-first, plane by plane, and nodes keep serving when the link drops.</p>
           </article>
           <article class="lynq-card card">
-            <h3>NTN dashboard</h3>
-            <p>Timing, beam management, handovers, link budgets, scheduling, queues, predicted outages and every routing decision, in one live view.</p>
+            <h3>AI-enabled IoT devices</h3>
+            <p>Models run on the terminal and on the satellite, so the narrowband link carries alarms and summaries, not raw data.</p>
           </article>
         </div>
 
@@ -180,7 +181,7 @@
       <div class="wrap">
         <p class="lynq-label"><span class="num">03</span> The proposal</p>
         <h2 class="lynq-h-gradient">Technical, regulatory and business</h2>
-        <p class="intro">Our two-page answer to OQ's three expected outcomes: a defined constellation, a regulatory pathway and a first-order business case.</p>
+        <p class="intro">Our answer to OQ's three expected outcomes, as pitched at NEOSPACE Europe 2026: a defined constellation, a regulatory pathway and a first-order business case.</p>
 
         <div class="tabs" role="tablist" aria-label="Proposal sections">
           <button role="tab" id="tab-tech" aria-controls="panel-tech" aria-selected="true">Technical</button>
@@ -193,22 +194,22 @@
           <div class="grid-2">
             <div class="prose">
               <h3>Constellation</h3>
-              <p>We start with today's ~12 satellites (OQ's 10 plus 2 ERMIS) and size the twin for the planned 30, focused on the North Sea offshore energy basin (~51–61°N).</p>
-              <p>At ~500–550 km and 10° minimum elevation, one footprint is ~3,000 km across, so a single satellite in view covers the whole basin and every land gateway around it. Scaling to 30 (e.g. 3 planes × 10) shrinks the gaps between passes about 2.5× and lets each plane close an RF inter-satellite ring.</p>
-              <h3>Payload</h3>
-              <p>Full regenerative gNB on every satellite. Bent-pipe cannot serve users with no gateway in view, and a split gNB still round-trips control signalling over the feeder link. Power and radiation costs are handled with a narrowband gNB, duty-cycling over empty ocean and COTS processing under a rad-hard supervisor.</p>
+              <p>Seven near-polar planes of sixteen satellites at 700 km. It is the cheapest design we found that covers every point on Earth every minute and delivers 99% of alarms within 100 ms. We picked it with an NSGA-II search over 3,064 designs (cost, latency, coverage, RF vs laser crosslinks) on MeluXina, then re-simulated it for 24 h over 2,000 points.</p>
+              <p>Over open ocean no gateway is in reach, so alarms hop over the crosslinks to a satellite above an authorised gateway. RF beats laser at every laser price we tested: a laser design with the same service costs €125M more.</p>
+              <h3>Payload and software</h3>
+              <p>Full regenerative NB-IoT gNB on every satellite (16U, 30 kg, 100 W). Each satellite runs KubeEdge EdgeCore, so policies, gNB software and AI models ship as containers and keep running through link outages.</p>
             </div>
             <div>
               <table class="spec">
                 <tbody>
-                  <tr><th>Fleet</th><td>~12 → 30 satellites</td></tr>
-                  <tr><th>Altitude</th><td>~500–550 km LEO</td></tr>
-                  <tr><th>Min. elevation</th><td>10°</td></tr>
-                  <tr><th>Payload</th><td>100% regenerative gNB</td></tr>
-                  <tr><th>Intra-plane ISL</th><td>RF, all satellites</td></tr>
-                  <tr><th>Cross-plane ISL</th><td>Optical, relay subset</td></tr>
-                  <tr><th>Standards</th><td>3GPP Rel-17/18/19 NTN</td></tr>
-                  <tr><th>Example</th><td>Mid-Atlantic platform → Frankfurt in ~75–110 ms</td></tr>
+                  <tr><th>Fleet</th><td>7 planes × 16 = 112 satellites</td></tr>
+                  <tr><th>Orbit</th><td>700 km, 87°, Walker star</td></tr>
+                  <tr><th>Coverage</th><td>100% of Earth, every minute</td></tr>
+                  <tr><th>Alarm latency</th><td>p50 72 ms · p99 98 ms</td></tr>
+                  <tr><th>Crosslinks</th><td>Ka-band RF, in-plane + cross-plane</td></tr>
+                  <tr><th>Ground</th><td>28 gateways, 5G Core, local breakout</td></tr>
+                  <tr><th>Cost</th><td>€134M capex · €348M over 10 years</td></tr>
+                  <tr><th>Standards</th><td>3GPP Rel-17/19 NTN</td></tr>
                 </tbody>
               </table>
             </div>
@@ -220,13 +221,13 @@
             <div class="prose">
               <h3>The Consultant's Dilemma</h3>
               <p>A local gateway may be the best technical choice but still be off-limits because of national restrictions, data-residency rules or licensing. Lynq applies routing policy onboard and sends each flow only to a policy-compliant gateway. Under MNO partnerships, the MNO keeps lawful intercept.</p>
-              <p>ITU Radio Regulations Article 9 coordination and Article 22 EPFD limits are hard design constraints. We support EU-hosted processing, encryption, customer key ownership, pseudonymisation and GDPR retention. <strong>Sovereignty is built into routing.</strong></p>
+              <p>ITU Radio Regulations Article 9 coordination and Article 22 EPFD limits are hard design constraints. A deorbit burn is budgeted, because 700 km decays too slowly. For NIS2 and the Cyber Resilience Act, updates are signed container images over mTLS, with audited rollouts. <strong>Sovereignty and security are built into the software.</strong></p>
             </div>
             <ol class="steps">
               <li><strong>Luxembourg ILR / LSA</strong><span>Extend OQ's Nov-2025 concession to ISL and regenerative operations</span></li>
               <li><strong>ITU BR via Luxembourg</strong><span>Priority filings</span></li>
               <li><strong>International waters</strong><span>No landing rights needed</span></li>
-              <li><strong>North Sea regulators &amp; MNOs</strong><span>Coastal coverage</span></li>
+              <li><strong>MNO partner countries</strong><span>Landing rights and local breakout</span></li>
               <li><strong>EC / CEPT</strong><span>S-band MSS (IoT) and C-band direct-to-device spectrum</span></li>
             </ol>
           </div>
@@ -235,16 +236,16 @@
         <div class="panel" role="tabpanel" id="panel-biz" aria-labelledby="tab-biz" hidden>
           <div class="grid-2">
             <div class="prose">
-              <h3>First buyer</h3>
-              <p>A European offshore energy operator or offshore wind O&amp;M provider. Lynq reduces blind spots, improves alarm delivery and cuts dependence on VSAT and fixed gateways.</p>
+              <h3>Two layers of customers</h3>
+              <p><strong>OQ Technology</strong> buys the constellation design, NTN-Pulse, KubeEdge orchestration and support. <strong>OQ's end customers</strong> come first from offshore energy and maritime, then from defence and sovereign users.</p>
               <h3>Revenue</h3>
-              <p>Integration fees, monthly subscriptions by asset and traffic class, usage charges for priority QoS, and MNO wholesale or roaming. We price per asset, never per byte.</p>
-              <p>OQ's EIC Accelerator award and €25M EIB venture debt fund a second service on the same network: SOS and safety messaging to unmodified phones for offshore crews and vessels.</p>
+              <p>A platform licence per satellite or gateway node per year, an annual support contract, and a per-device fee for AI-enabled terminals. End customers pay OQ per asset, never per byte.</p>
+              <p>We asked for <strong>€450k</strong> to reach TRL 5 in 12 months: a KubeEdge testbed and hardware-in-the-loop at OQ's 5G Satellite Test Lab.</p>
             </div>
             <div class="bignums">
-              <div><span class="bignum">~€9M</span><span>per year opex for the North Sea network, including replenishment</span></div>
-              <div><span class="bignum">~75k</span><span>offshore assets at €120/yr to break even</span></div>
-              <div><span class="bignum">~9k</span><span>sovereign or defence endpoints at €1,000+/yr to break even</span></div>
+              <div><span class="bignum">$2.3–3.1B</span><span>satellite IoT market in 2026, growing 14–23% a year</span></div>
+              <div><span class="bignum">~290k</span><span>assets at €120/yr for the global network to break even</span></div>
+              <div><span class="bignum">~35k</span><span>sovereign or defence endpoints at €1,000+/yr to break even</span></div>
             </div>
           </div>
         </div>
@@ -254,9 +255,9 @@
             <table class="risks">
               <thead><tr><th>Risk</th><th>Assumption</th><th>Mitigation</th></tr></thead>
               <tbody>
-                <tr><td>Payload</td><td>Final power, compute, radiation and RAN-interface limits may differ.</td><td>Payload-independent policies with cloud and gateway fallback; OQ interface checklist.</td></tr>
-                <tr><td>ISL / regulatory</td><td>Final ISL, gateway and spectrum choices may change.</td><td>Simulate optical and RF ISLs, gateway visibility and store-and-forward; ITU and national rules as hard constraints.</td></tr>
-                <tr><td>Adoption</td><td>Customers may resist new terminals, MNO integration or uncertain SLAs.</td><td>One wind-turbine alarm use case, measured TCO and a paid pilot with latency, availability and delivery targets.</td></tr>
+                <tr><td>Technical</td><td>RF crosslinks have only 0.58 dB margin. One satellite failure opens 4-min gaps. Onboard compute is tight (40 W payload).</td><td>Design for +3 dB per link. One in-orbit spare per plane (7 satellites, ~€7M). Lightweight EdgeCore, updates only in contact windows.</td></tr>
+                <tr><td>Regulatory / market</td><td>OQ's concession is not yet extended to crosslinks. Security certification (NIS2 / CRA).</td><td>Luxembourg first. Signed images, audit logs and a security review built in from the start.</td></tr>
+                <tr><td>Delivery / funding</td><td>Launch cost per plane: a dedicated launch raises the 10-year cost by ~50%.</td><td>Rideshare plus transfer vehicles. The design ranking holds under that sensitivity.</td></tr>
               </tbody>
             </table>
           </div>
@@ -264,12 +265,12 @@
 
         <div class="next lynq-card">
           <div>
-            <p class="lynq-label">Next: Phase 2 in Luxembourg</p>
-            <p>We will simulate one offshore corridor at 12 and 30 satellites, bent-pipe vs. regenerative, showing priority handling, dynamic path selection, latency, delivery probability, queue depth, TCO and routing compliance.</p>
+            <p class="lynq-label">Pitched at NEOSPACE Europe 2026</p>
+            <p>We started from a two-page North Sea proposal (~12 → 30 satellites). Simulation and optimisation took us to a global 7×16 design with KubeEdge orchestration and edge AI. Read the final pitch deck, or the original Phase 1 proposal.</p>
           </div>
           <div class="next__dl">
-            <a href="/assets/docs/lynq-ntn-pulse-proposal.pdf" class="lynq-btn" target="_blank" rel="noopener">Download PDF</a>
-            <a href="/assets/docs/lynq-ntn-pulse-proposal.docx" class="btn-secondary" download>Word (.docx)</a>
+            <a href="/assets/docs/lynq-ntn-pulse-pitch.pdf" class="lynq-btn" target="_blank" rel="noopener">Final pitch (PDF)</a>
+            <a href="/assets/docs/lynq-ntn-pulse-proposal.pdf" class="btn-secondary" target="_blank" rel="noopener">Phase 1 proposal</a>
           </div>
         </div>
       </div>
@@ -289,12 +290,12 @@
           <article class="lynq-card member">
             <div class="member__avatar" aria-hidden="true">IB</div>
             <h3>Ines Bouissou</h3>
-            <p>NTN modelling &amp; optimisation</p>
+            <p>NTN modelling &amp; constellation optimisation</p>
           </article>
           <article class="lynq-card member">
             <div class="member__avatar" aria-hidden="true">GS</div>
             <h3>Gambhir Sharma</h3>
-            <p>Cloud, APIs &amp; deployment</p>
+            <p>Cloud, KubeEdge orchestration &amp; deployment</p>
           </article>
           <article class="lynq-card member">
             <div class="member__avatar" aria-hidden="true">MA</div>
@@ -311,7 +312,7 @@
         <div>
           <p class="lynq-label"><span class="num">05</span> Contact</p>
           <h2 class="lynq-h-gradient">Talk to us</h2>
-          <p class="intro">Questions about NTN-Pulse, a pilot, or the challenge? Send us a message, or find us at NEOSPACE Europe, 19–20 October 2026, Luxexpo The Box, Luxembourg.</p>
+          <p class="intro">Questions about NTN-Pulse, a pilot, or the challenge? Send us a message. We pitched at NEOSPACE Europe, 19–20 October 2026, Luxexpo The Box, Luxembourg.</p>
           <p class="contact-email">
             <span class="lynq-label">Email</span><br>
             <a id="contact-email" href="mailto:hey@gambhir.dev">hey@gambhir.dev</a>

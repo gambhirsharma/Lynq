@@ -9,12 +9,12 @@
 <p align="center"><em>Every signal, the right path.</em></p>
 
 <p align="center">
-  <a href="03-proposal/current/final.pdf"><b>📄 Read the proposal (PDF)</b></a> ·
-  <a href="01-research/00-START-HERE.md">Research pack</a> ·
-  <a href="02-brand/lynq-brand-kit/BRAND-GUIDE.md">Brand guide</a> ·
-  <a href="04-simulation/README.md">Simulation</a> ·
-  <a href="05-global-coverage/README.md">Global coverage</a> ·
-  <a href="07-constellation-optimization/README.md">Optimisation</a>
+  <a href="08-final-pitch/Lynq-NTN-Pulse-final-pitch.pdf"><b>🎤 Final pitch deck (PDF)</b></a> ·
+  <a href="07-constellation-optimization/DESIGN-7x16.md"><b>🛰️ 7×16 design sheet</b></a> ·
+  <a href="04-simulation/README.md">Digital twin</a> ·
+  <a href="07-constellation-optimization/README.md">Optimiser</a> ·
+  <a href="03-proposal/current/final.pdf">Phase 1 proposal</a> ·
+  <a href="01-research/00-START-HERE.md">Research pack</a>
 </p>
 
 ---
@@ -22,127 +22,166 @@
 Team **Lynq**'s entry for the **NEOSPACE Europe 2026** challenge set by **OQ Technology**:
 *AnyPoint-NTN: Global gNB-Onboard LEO Constellation for Ubiquitous 5G NR-NTN* (category: Next-Gen Downstream).
 
+> **In one line:** we designed a 112-satellite polar 5G constellation for OQ Technology, along with the
+> cloud-to-edge software that runs it. Every IoT alarm, anywhere on Earth, reaches the cloud in under 100 ms (p99).
+> Satellites, gateways and AI-enabled devices are all updated from one Kubernetes/KubeEdge control plane.
+> We chose the design by searching 3,064 candidate constellations on the **MeluXina** supercomputer.
+> Every number in the pitch can be reproduced from this repo.
+
 | | |
 |---|---|
 | **Event** | NEOSPACE Europe 2026, 19–20 October 2026, Luxexpo The Box, Luxembourg |
-| **Sponsor** | OQ Technology S.à r.l. (Luxembourg) |
-| **Product** | Lynq NTN-Pulse: digital twin and policy engine for a regenerative gNB-onboard LEO constellation |
-| **Status** | Phase 1 proposal finished (2 pages). Phase 2 is the on-site simulation in Luxembourg |
+| **Challenge sponsor** | OQ Technology S.à r.l. (Luxembourg), a satellite 5G IoT operator |
+| **Deliverables** | Phase 1: two-page proposal. Phase 2: on-site simulation and a 10-minute pitch to a jury |
+| **Status** | Done. Pitched on site; final deck in [`08-final-pitch/`](08-final-pitch/) |
 
-## What is Lynq NTN-Pulse?
+## The problem
 
-Today's satellite IoT mostly uses *bent-pipe* satellites. They only relay signals, so a ground gateway has to be in view.
-If that gateway is out of view, blocked, overloaded or restricted by national rules, the service drops.
-Offshore wind farms, oil and gas platforms, vessels and pipelines are hit hardest.
+Today's satellite IoT is **neither global nor easy to run**.
 
-OQ is moving to **regenerative** satellites, which run a full 5G base station (gNB) in orbit.
-That lets traffic route over inter-satellite links (ISLs) or wait onboard until the next pass.
-It also makes the network much harder to run.
+- **Not global.** Most satellite IoT uses *bent-pipe* satellites. They only relay signals, so a ground gateway
+  must be in view at the same time. Over open ocean there is none. Offshore energy, shipping and pipelines are
+  left in the dark however many satellites fly.
+- **Hard to run.** OQ is moving to *regenerative* satellites, each running a full 5G base station (gNB) in orbit.
+  That turns the network into a distributed computer: a gNB on every satellite, dozens of gateways, hundreds of
+  thousands of devices, and links that come and go every few minutes. Updating software or AI models by hand does not scale.
 
-NTN-Pulse is the software layer for that network:
+## Our solution
 
-- **Digital twin.** Models satellites, coverage, gateway visibility, feeder and ISL state, terminals, traffic demand and onboard compute. Sized for today's ~12 satellites and the planned 30.
-- **Policy engine.** Assigns each traffic class to a path (deliver now, relay over ISL, process at the edge, or store and forward) based on QoS, latency, reliability, data residency and cost.
-- **Sovereignty built into routing.** Sends each flow only to a gateway that is allowed to receive it, with local user-plane breakout. ITU and national rules are treated as hard constraints.
-- **NTN dashboard.** Shows timing, handovers, link budgets, queues, predicted outages and routing decisions.
+A complete global NTN that OQ can operate, in four parts:
 
-### Design point
-
-| Parameter | Value |
+| Part | What it does |
 |---|---|
-| Constellation | **~12 → 30** satellites (10 OQ + 2 ERMIS in orbit today; 30 planned) |
-| Payload | **Full regenerative gNB** on every satellite |
-| ISL | **RF** within each orbital plane, **optical** between planes on a subset of relay satellites |
-| Minimum elevation | **10°** |
-| Service tiers | Continuous **<150 ms** · Mesh-relayed **<250 ms** · Store-and-forward **≤90 min** |
-| First market | North Sea offshore energy and maritime operations (~51–61°N) |
-| Pricing | Per asset, not per byte. Break-even at ~75k assets × €120/yr, or ~9k sovereign endpoints × €1,000+/yr |
+| **7×16 polar constellation** | 112 satellites at 700 km, 87°, linked by Ka-band RF crosslinks. Covers **100% of Earth every minute**, with alarm latency **p50 72 ms / p99 98 ms** |
+| **NTN-Pulse policy engine + digital twin** | Picks a path for every message: deliver now, relay over inter-satellite links, or store and forward. Lands data **only at gateways allowed to receive it** (data residency built into routing) |
+| **KubeEdge orchestration** | One control plane: cloud → gateways → satellites → devices. Satellites run as edge nodes. Updates roll out canary-first, plane by plane, with automatic rollback, and nodes keep serving when the link drops |
+| **AI-enabled IoT devices** | Models run on the terminal and on the satellite, so a narrowband link carries alarms and summaries, not raw data |
 
-The full reasoning is in the [proposal](03-proposal/current/final.md): technical, regulatory and business angles, plus risks and next steps.
+```
+CLOUD    KubeEdge CloudCore · NTN-Pulse twin + policy engine · AI model registry · dashboard
+   │       Kubernetes API, policies, images, models
+GROUND   28 gateways (EdgeCore) · 5G Core · local user-plane breakout
+   │       feeder links
+SPACE    112 satellites (EdgeCore) · regenerative NB-IoT gNB · onboard policy + AI
+   │       Ka-band RF crosslinks: fore/aft in-plane, left/right cross-plane
+DEVICES  AI-enabled IoT terminals (KubeEdge device twin / mappers) · standard 3GPP chips
+```
+
+## Key results
+
+All results come from our own simulation code in this repo. The source is listed next to each one.
+
+| Result | Value | Source |
+|---|---|---|
+| Design search | NSGA-II over **3,064 constellation designs** on MeluXina, confirmed at 24 h / 60 s / 2,000 points | [`07/results/report.md`](07-constellation-optimization/results/report.md) |
+| Chosen design | **7 planes × 16 = 112 satellites**, 700 km, 87° Walker star | [`DESIGN-7x16.md`](07-constellation-optimization/DESIGN-7x16.md) |
+| Coverage | **100% of Earth, every minute**, longest gap 0 min | `design_detail.py 16` |
+| Alarm latency | p50 **72 ms** · p95 91 ms · p99 **98 ms** | `design_detail.py 16` |
+| Cost | **€134.2M** capex (€0.83M/satellite) · **€348.2M** 10-year TCO | [`costmodel.py`](07-constellation-optimization/costmodel.py) |
+| RF vs laser crosslinks | RF wins at every laser price tested. A laser 6×20 design costs **€125M more** for the same service | report §RF vs optical |
+| Resilience | Gateway outage: no change. One satellite lost: 99.84% coverage, 4-min gap | DESIGN-7x16 §6 |
+| Sovereign routing | With a gateway offline, alarms stay at **~100 ms** over the crosslink mesh (vs 30–35 s without it). **100% routing compliance** | [`04-simulation`](04-simulation/README.md#results-24-h-300-terminals-10-s-steps) |
+| Fleet updates | A 100 MB canary + waves update reaches 30 satellites in **~1.2 h** with crosslinks vs **~21 h** without | [`FLEET-OPS.md`](04-simulation/FLEET-OPS.md) |
+| Maturity | **TRL 3** today (proof of concept in simulation), target TRL 5 by Q4 2027 | [Pitch slide 05](08-final-pitch/deck.md) |
+
+Business side of the pitch: a $2.3–3.1B satellite IoT market growing 14–23% a year. The global network
+breaks even at ~290k assets × €120/yr. Lynq licenses the platform to OQ per node and per AI-enabled device,
+and asks for €450k to reach TRL 5 in 12 months. See [`08-final-pitch/deck.md`](08-final-pitch/deck.md), slides 07–11.
+
+## How the project evolved
+
+The design changed a lot between the first draft and the pitch. Each step is kept in the repo:
+
+1. **Research** ([`01-research/`](01-research/00-START-HERE.md)). Primer, sponsor dossier, technical, regulatory,
+   business and competitor deep dives.
+2. **Phase 1 proposal** ([`03-proposal/current/`](03-proposal/current/final.pdf)). Two pages, with a North Sea
+   offshore focus on OQ's ~12 satellites growing to 30.
+3. **North Sea digital twin** ([`04-simulation/`](04-simulation/README.md)). Orbits, link budgets, routing graph,
+   queues and a jurisdiction-aware policy engine, with a Streamlit dashboard. It showed that crosslinks make
+   sovereign routing cheap, and that the choice of orbit matters more than the satellite count.
+4. **Global coverage study** ([`05-global-coverage/`](05-global-coverage/README.md)). This step drops the fixed
+   satellite count and asks what it takes to cover the *whole* Earth with low latency.
+5. **Multi-objective optimisation** ([`07-constellation-optimization/`](07-constellation-optimization/README.md)).
+   NSGA-II over cost, p99 latency and coverage, with RF vs optical crosslinks as a decision variable, run as a Slurm job
+   on MeluXina. It produced the **7×16** design.
+6. **Fleet operations** ([`04-simulation/FLEET-OPS.md`](04-simulation/FLEET-OPS.md)). The constellation modelled as a
+   KubeEdge edge cluster: control-plane reachability, and over-the-air rollouts over the crosslink mesh.
+7. **Final pitch** ([`08-final-pitch/`](08-final-pitch/)). 15 slides plus backups, with a script and a Q&A cue card.
+
+## Run it yourself
+
+Python 3.10+. Each folder is self-contained.
+
+```bash
+# Digital twin + interactive dashboard (default preset: the 7×16 design)
+cd 04-simulation
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/streamlit run dashboard.py
+.venv/bin/python -m pytest -q                 # 17 tests
+
+# Reproduce every number on the 7×16 design sheet (~2 min)
+cd ../07-constellation-optimization
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python design_detail.py 16
+.venv/bin/python -m pytest -q                 # 21 tests
+
+# Full optimisation (laptop, or MeluXina via sweep.slurm, see the folder README)
+.venv/bin/python solve.py --help
+```
+
+## Tech and skills shown
+
+- **Space systems modelling:** Walker constellations, orbital geometry, elevation masks, link budgets
+  (FSPL, SNR, derated Shannon), ISL range and Earth blocking, Δv and propellant budgets, deorbit rules.
+- **Networking:** 3GPP Rel-17/19 NTN, regenerative vs bent-pipe payloads, Dijkstra routing over a time-varying
+  mesh, store-and-forward queues, policy-constrained (sovereign) routing.
+- **Optimisation and HPC:** NSGA-II written from scratch in NumPy (non-dominated sorting, crowding, constraint
+  handling), parallel evaluation with caching and resume, Slurm batch jobs on the MeluXina EuroHPC supercomputer.
+- **Cloud-native / edge:** Kubernetes and KubeEdge (CloudCore/EdgeCore, edge autonomy, device twins, Sedna edge
+  AI), canary rollouts and rollback, signed images and mTLS.
+- **Software:** Python (NumPy, pandas, NetworkX, SciPy), Streamlit + Plotly dashboard, 49 pytest tests, static
+  website (HTML/CSS/JS on Vercel), Node.js build scripts for the `.docx` proposal and `.pptx` deck.
+- **Business and regulation:** TCO model, pricing and break-even, ITU filings, Luxembourg space law, GDPR,
+  NIS2 / Cyber Resilience Act, IP and freedom-to-operate check.
 
 ## Repository layout
 
 ```
 .
-├── 00-challenge-brief/        Official OQ use-case brief (.docx original + .md conversion)
-├── 01-research/               Research pack (18 Sep 2026). Start with 00-START-HERE.md
-├── website/                 Static one-page site for Vercel. See website/README.md
-├── 02-brand/
-│   ├── lynq-brand-kit/        Logos, favicons, CSS tokens. Start with BRAND-GUIDE.md
-│   ├── brand-master-prompt.md Prompt used to generate the brand
-│   └── Lynq brand identity system.zip   Original brand-kit download
-└── 03-proposal/
-    ├── current/               ★ The proposal to submit (.pdf, .docx, .doc, .html, .md)
-    │   └── build-src/         .docx build script, logo and data-path figure
-    ├── working-notes/
-    │   ├── 01-condense-to-2-pages/   3-page working PDF → 2-page final: review and diffs
-    │   └── 02-fleet-30-update/       Fleet size 10 → 30 satellites: change notes and patches
-    └── history/               Every earlier version, oldest first
-└── 04-simulation/             Phase 2 digital twin: scenario runner + Streamlit dashboard. See 04-simulation/README.md
-└── 05-global-coverage/        Whole-Earth coverage + latency study, satellite count left free. See 05-global-coverage/README.md
-└── 07-constellation-optimization/  Multi-objective cost / latency / coverage optimisation, RF vs optical ISL. See 07-constellation-optimization/README.md
+├── 00-challenge-brief/            Official OQ use-case brief (.docx original + .md conversion)
+├── 01-research/                   Research pack. Start with 00-START-HERE.md
+├── 02-brand/lynq-brand-kit/       Logos, favicons, CSS tokens, BRAND-GUIDE.md
+├── 03-proposal/
+│   ├── current/                   Phase 1 proposal as submitted (.pdf, .docx, .md, .html) + build script
+│   ├── working-notes/             Condensing to 2 pages; fleet 10 → 30 update
+│   └── history/                   Every earlier proposal version, oldest first
+├── 04-simulation/                 NTN-Pulse digital twin, policy engine, fleet ops model, Streamlit dashboard
+├── 05-global-coverage/            Whole-Earth coverage and latency study, satellite count left free
+├── 06-leo-constellations/         Market report: who runs LEO constellations today
+├── 07-constellation-optimization/ NSGA-II cost / latency / coverage optimiser, MeluXina job, 7×16 design sheet
+├── 08-final-pitch/                ★ Final pitch deck (PDF), slide text, script, Q&A cue card
+└── website/                       Static one-page site (Vercel)
 ```
-
-### Research pack
-
-If you have no space or telecom background, read [`01-research/01-PRIMER-no-space-background.md`](01-research/01-PRIMER-no-space-background.md) first.
-
-| # | File | Topic |
-|---|---|---|
-| 01 | [Primer](01-research/01-PRIMER-no-space-background.md) | Every term in the brief explained from zero |
-| 02 | [OQ dossier](01-research/02-OQ-TECHNOLOGY-dossier.md) | The sponsor: fleet, funding, spectrum, strategy |
-| 03 | [Challenge decoded](01-research/03-CHALLENGE-decoded.md) | What OQ is really asking for and how it will be judged |
-| 04 | [Technical](01-research/04-TECHNICAL-deep-dive.md) | Architecture, constellation sizing, ISL trade, link and SWaP budgets |
-| 05 | [Regulatory](01-research/05-REGULATORY-deep-dive.md) | ITU, EPFD, MSS spectrum, landing rights, lawful intercept, export control |
-| 06 | [Business case](01-research/06-BUSINESS-CASE.md) | Segments, unit economics, revenue model |
-| 07 | [Competitors](01-research/07-COMPETITIVE-LANDSCAPE.md) | Starlink D2C, AST, Lynk, Sateliot, Skylo, Iridium, Kepler, IRIS² |
-| 08 | [Our proposal (research draft)](01-research/08-OUR-PROPOSAL.md) | First answer to the three expected outcomes |
-| 09 | [Sources](01-research/09-SOURCES.md) | Bibliography |
-
-## Proposal version history
-
-All versions are in `03-proposal/`.
-
-| Version | Folder | Date | Changes |
-|---|---|---|---|
-| v1 | `history/v1-2026-09-27-first-draft/` | 27 Sep | First team draft, review report, constellation change, v2 in md/html/pdf/docx plus a dark theme |
-| v2 | `history/v2-2026-09-28-branded-redesign/` | 28 Sep | Branded layout and real satellite count |
-| — | `working-notes/01-condense-to-2-pages/working-pdf.pdf` | 28 Sep | 3-page working PDF used as the starting point for condensing |
-| v3 | `history/v3-2026-09-28-condensed-8.6pt/` | 28 Sep | First 2-page version, 8.6 pt body |
-| v4 | `history/v4-2026-09-28-10pt/` | 28 Sep | 10 pt body, team roles added |
-| v5 | `history/v5-2026-09-28-fleet-core-patch/` | 28 Sep | Core fleet-30 patch applied |
-| v5b | `history/v5b-2026-09-28-pre-fleet-backup/` | 28 Sep | Backup taken just before the final fleet edits |
-| v6 | `history/v6-2026-09-28-10-sats/` | 28 Sep | "10 → 30 satellites" wording |
-| v7 | `history/v7-2026-09-28-12-to-30-sats/` | 28 Sep | "~12 → 30 satellites" (10 OQ + 2 ERMIS) |
-| **current** | `current/` | 14 Oct | Simulation finding: a 65° Walker delta cuts the worst North Sea gap from 118 to 3 min |
-
-## Website
-
-`website/` holds a static one-page site with the proposal summary, team and contact form.
-To deploy it on Vercel, set Root Directory to `website`, with no build step. See [`website/README.md`](website/README.md).
-
-## Rebuilding the .docx
-
-The Word version is generated with [`docx`](https://www.npmjs.com/package/docx) for Node.js.
-
-```bash
-cd 03-proposal/current/build-src
-npm install docx            # one-time
-node build.js ../final.docx
-```
-
-Run it from `build-src/`, because `build.js` loads `logo.png` and `fig.png` from the working directory.
 
 ## Team
 
 | Name | Role |
 |---|---|
 | Davoud Jokar | Systems and digital twin |
-| Ines Bouissou | NTN modelling and optimisation |
-| Gambhir Sharma | Cloud, APIs and deployment |
+| Ines Bouissou | NTN modelling and constellation optimisation |
+| Gambhir Sharma | Cloud, KubeEdge orchestration and deployment |
 | Maryam Amini | TCO, pricing, regulation and first-buyer case |
 
-## Notes
+Partners: OQ Technology (challenge company), MeluXina / LuxProvide (HPC), KubeEdge / CNCF community,
+Università di Roma Tor Vergata.
 
-- Files were reorganised (moved, not edited). Some older notes still use their original paths. For example, `review.md` refers to `../working-pdf.pdf`, which is now in the same folder, and `team-proposal-report.md` refers to `research/…`, which is now `01-research/…`.
-- The challenge brief in `00-challenge-brief/` belongs to OQ Technology and NEOSPACE. It is included here only for reference.
+## Limits and honesty notes
+
+- All results are **simulation** (TRL 3), not flight data. The models use circular orbits with no J2 or drag,
+  no traffic load in the global study, and fixed gateways. Every assumption lives in a `config.py` or
+  `costmodel.py` and can be changed and re-run.
+- Costs are parametric. Trust the **ranking** of designs more than the absolute euros.
+- The challenge brief in `00-challenge-brief/` and the OQ ONE notes in `01-research/` belong to OQ Technology and
+  NEOSPACE. They are included only for reference.
+- Some older notes in `03-proposal/history/` and `working-notes/` still use paths from before the repo was
+  reorganised.

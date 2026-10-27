@@ -1,6 +1,6 @@
 # Lynq NTN-Pulse website
 
-A one-page static site for the proposal, built with plain HTML, CSS and JS. There is no build step and nothing to install.
+A one-page static site for the project, built with plain HTML, CSS and JS. There is no build step and nothing to install.
 
 ## Run locally
 
@@ -25,11 +25,11 @@ The contact address is set in `CONTACT_EMAIL` at the top of `script.js`. The con
 
 | Path | What it is |
 |---|---|
-| `index.html` | Single page: hero, problem, solution, proposal (tabs), team, contact |
+| `index.html` | Single page: hero, problem, solution, proposal (tabs), team, contact. Content matches the final pitch |
 | `styles.css` | Site styles, built on the brand tokens |
 | `script.js` | Mobile menu, proposal tabs, mailto contact form |
 | `assets/lynq-tokens.css` | Copy of `02-brand/lynq-brand-kit/tokens/lynq-tokens.css` |
 | `assets/logos/`, `assets/favicon/` | Copies from the brand kit (orbital-link mark, dark variant) |
-| `assets/docs/` | Copies of `03-proposal/current/final.pdf` and `.docx` |
+| `assets/docs/` | Copies of the final pitch (`08-final-pitch/Lynq-NTN-Pulse-final-pitch.pdf`) and the Phase 1 proposal (`03-proposal/current/final.pdf`, `.docx`) |
 
-If the proposal changes, copy the new PDF and DOCX into `assets/docs/` again.
+If the deck or proposal changes, copy the new files into `assets/docs/` again.

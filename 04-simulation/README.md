@@ -5,6 +5,10 @@ OQ Technology challenge. It runs the comparison promised in the proposal (sectio
 bent-pipe vs. regenerative, with changing visibility, gateway access, load and ISL conditions**, and reports
 latency, delivery probability, queue depth and routing compliance.
 
+The default preset is now the final global design, **7 × 16 = 112 satellites** (see
+[`07-constellation-optimization/DESIGN-7x16.md`](../07-constellation-optimization/DESIGN-7x16.md)). The North Sea
+results below use the `today-12` and `planned-30` presets.
+
 ## Quick start
 
 ```bash

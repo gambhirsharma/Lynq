@@ -21,6 +21,7 @@
 | 07 | `07-COMPETITIVE-LANDSCAPE.md` | Starlink D2C, AST, Lynk, Sateliot, Skylo, Iridium, Kepler, IRIS² | Benchmarking (explicitly requested by OQ) |
 | 08 | `08-OUR-PROPOSAL.md` | A concrete, defensible answer to the three Expected Outcomes | The deliverable |
 | 09 | `09-SOURCES.md` | Full bibliography with links | Citations |
+| 10 | `10-OQ-ONE-terminal.md` | OQ ONE: OQ's dual-mode satellite/cellular NB-IoT terminal, specs and use cases | Device side of the pitch |
 
 ---
 

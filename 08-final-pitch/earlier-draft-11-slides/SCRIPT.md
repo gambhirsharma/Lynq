@@ -1,5 +1,8 @@
 # Lynq NTN-Pulse: 10-minute pitch script
 
+> **Superseded.** This is the earlier 11-slide pitch for the North Sea (~12 → 30 satellite) design from the Phase 1
+> proposal. The deck shown at the event is [`../Lynq-NTN-Pulse-final-pitch.pdf`](../Lynq-NTN-Pulse-final-pitch.pdf).
+
 Deck: `lynq-ntn-pulse-pitch.pptx` (11 slides). The same text is in each slide's speaker notes.
 Length: ~1384 words, about 10 minutes at ~140 words per minute. Timings are cumulative. Numbers come from `03-proposal/current/final.md` and `04-simulation/README.md`.
 

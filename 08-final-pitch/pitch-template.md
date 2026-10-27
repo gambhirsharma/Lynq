@@ -1,5 +1,7 @@
 # NeoSpace Challenge 2026 — Pitch Fill-In Sheet
 
+> The blank NEOSPACE template we filled in. The completed version is [`deck.md`](deck.md).
+
 Format: 10-min pitch + 10-min jury Q&A · 14 slides · ~45 s each · one idea per slide, details to backup.
 Jury awards: Best Business Model · Best Regulatory Approach · Best Technical Solution · Best Overall Project · Special Mention.
 
