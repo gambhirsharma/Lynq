@@ -8,6 +8,7 @@ import streamlit as st
 
 from ntnpulse import config as cfg
 from ntnpulse.engine import Simulation
+from ntnpulse.fleet import run_rollout
 
 # Categorical slots validated (dataviz validate_palette.js, dark, surface #1C1C21): all checks pass.
 SLOT = ("#1FA3B2", "#D9772A", "#8B70E6")
@@ -125,7 +126,8 @@ if compare:
         "Critical p50 (s)": "{:.3g}", "Critical p95 (s)": "{:.3g}", "Max onboard queue (kB)": "{:,.0f}"}),
         hide_index=True, width="stretch")
 
-tab_lat, tab_net, tab_q, tab_pol, tab_data = st.tabs(["Latency", "Network map", "Queues & coverage", "Policy", "Data"])
+tab_lat, tab_net, tab_q, tab_pol, tab_fleet, tab_data = st.tabs(
+    ["Latency", "Network map", "Queues & coverage", "Policy", "Fleet ops", "Data"])
 
 # --- latency ----------------------------------------------------------------------------
 with tab_lat:
@@ -268,6 +270,78 @@ with tab_pol:
             delivered=("id", "count"), compliant=("compliant", "mean"), policy_rerouted=("policy_redirect", "mean"),
             via_isl=("isl_hops", lambda v: (v > 0).mean())).style.format(
             {"compliant": "{:.0%}", "policy_rerouted": "{:.0%}", "via_isl": "{:.0%}"}), width="stretch")
+
+# --- fleet ops ------------------------------------------------------------------------------
+@st.cache_data(show_spinner="Rolling out...", max_entries=12)
+def rollout(fsc: cfg.FleetScenario):
+    r = run_rollout(fsc)
+    return r.summary(), r.sats, r.series, r.t_release
+
+
+with tab_fleet:
+    st.markdown("The fleet run as a **KubeEdge-style edge cluster**: control plane in the Frankfurt cloud, one edge "
+                "node per satellite. It shows how often each satellite can hear the control plane, and how long an "
+                "over-the-air update of an onboard workload (e.g. the gNB container) takes to reach the whole fleet. "
+                "Constellation and offline gateways come from the sidebar.")
+    with st.form("fleet"):
+        f = st.columns(4)
+        image_mb = f[0].number_input("Image delta (MB)", 5, 2000, 100, 5)
+        ota = f[0].number_input("Feeder share for updates (Mbps)", 0.5, 20.0, cfg.OTA_FEEDER_MBPS, 0.5)
+        strategy = f[1].radio("Rollout", cfg.STRATEGIES, format_func=cfg.STRATEGY_LABELS.get)
+        wave = f[1].number_input("Wave size (maxUnavailable)", 1, 30, 3)
+        soak = f[1].number_input("Canary soak (min)", 0, 600, 30, 5)
+        restart = f[2].number_input("gNB restart (s)", 10, 1800, 90, 10)
+        f_isl = f[2].toggle("ISL carries control + images", True)
+        peer = f[2].toggle("Peer sharing over ISL", True, disabled=not f_isl)
+        avoid = f[3].toggle("Restart only outside the North Sea", True)
+        prestage = f[3].toggle("Pre-stage image before release", True)
+        f_hours = f[3].slider("Hours", 6, 72, 24)
+        st.form_submit_button("Run rollout")
+    fsc = cfg.FleetScenario(const, bool(f_isl), bool(f_isl and peer), frozenset(blocked), float(image_mb),
+                            float(ota), strategy, int(wave), float(soak), float(restart), bool(avoid),
+                            bool(prestage), duration_s=f_hours * 3600.0)
+    fs, sats, fts, t_release = rollout(fsc)
+
+    c = st.columns(6)
+    c[0].metric("Control plane reachable", f"{fs['reachable_mean']:.0%}", "mean over satellites and time",
+                delta_color="off")
+    c[1].metric("Longest silence", f"{fs['max_gap_min']:.0f} min", "worst satellite", delta_color="off")
+    c[2].metric("NotReady flaps", f"{fs['notready_per_sat_day']:.1f}", f"per satellite per day ({cfg.K8S_GRACE_S:.0f} s grace)",
+                delta_color="off")
+    c[3].metric("Default pod evictions", f"{fs['evictions_per_sat_day']:.1f}", "per satellite per day, untuned k8s",
+                delta_color="off")
+    c[4].metric("Fleet updated in", f"{fs['fleet_updated_h']:.1f} h" if np.isfinite(fs["fleet_updated_h"])
+                else f"{fs['updated']}/{fs['sats']} done", "last satellite reports healthy", delta_color="off")
+    c[5].metric("Peak satellites down", f"{fs['max_down']}", f"{fs['basin_outage_s']:.0f} sat-s of North Sea outage",
+                delta_color="off")
+
+    fig = go.Figure()
+    for col, name, color in (("image_complete", "Image onboard", SLOT[0]), ("applied", "Running new version", SLOT[1]),
+                             ("reported", "Reported healthy to cloud", SLOT[2])):
+        fig.add_scatter(x=fts.t / 3600, y=fts[col], name=name, mode="lines", line=dict(color=color, width=2, shape="hv"))
+    if len(t_release) > 1 and np.isfinite(t_release[1]):
+        fig.add_vline(x=t_release[1] / 3600, line=dict(color=MUTED, width=1, dash="dot"), annotation_text="canary passed",
+                      annotation_font_color=MUTED)
+    st.plotly_chart(style(fig, height=320, title="Rollout progress", xaxis_title="Hours", yaxis_title="satellites",
+                          yaxis_range=[0, fs["sats"] + 0.5]), width="stretch")
+
+    fig = go.Figure(go.Scatter(x=fts.t / 3600, y=fts.reachable, mode="lines", name="Reachable",
+                               line=dict(color=SLOT[0], width=2, shape="hv")))
+    st.plotly_chart(style(fig, height=240, title="Satellites the control plane can reach (direct or via ISL)",
+                          xaxis_title="Hours", yaxis_title="satellites", showlegend=False,
+                          yaxis_range=[0, fs["sats"] + 0.5]), width="stretch")
+
+    st.dataframe(sats.rename(columns={
+        "reachable": "Reachable", "max_gap_min": "Longest silence (min)", "notready_per_day": "NotReady / day",
+        "evictions_per_day": "Evictions / day (default)", "image_h": "Image onboard (h)",
+        "applied_h": "Running new (h)", "reported_h": "Reported (h)"}).style.format({
+        "Reachable": "{:.0%}", "Longest silence (min)": "{:.0f}", "NotReady / day": "{:.1f}",
+        "Evictions / day (default)": "{:.1f}", "Image onboard (h)": "{:.2f}", "Running new (h)": "{:.2f}",
+        "Reported (h)": "{:.2f}"}, na_rep="-"), hide_index=True, width="stretch")
+    st.caption(f"Bytes pushed from the ground: {fs['ground_mb']:,.0f} MB. Passed on by peers over ISL: "
+               f"{fs['peer_mb']:,.0f} MB. NotReady = control-plane gap longer than the {cfg.K8S_GRACE_S:.0f} s grace "
+               f"period; eviction = longer than grace + {cfg.K8S_EVICTION_S:.0f} s default toleration. Both are what "
+               "an untuned cluster would do; an orbit-aware cluster sets long tolerations and lets edge autonomy run.")
 
 # --- data -----------------------------------------------------------------------------------
 with tab_data:
